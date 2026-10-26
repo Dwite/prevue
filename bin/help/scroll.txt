@@ -1,0 +1,38 @@
+prevue scroll [<amount>] [--horizontal] [--at <file>:<line>[#N]] [--until <target>]
+
+Scrolls the interactive card (prevue focus <index> --on) with the wheel and returns the settled PNG (settled:false if it doesn't stop within 3 seconds). There is no distance-measuring search —
+scroll, read the response, decide the next step. If you are looking for something, stop right there with --until.
+
+<amount>      a number of screens. Default 1 (one screen — 0.8, overlapping the previous screen a little); negative is up · left, and fractions like 0.5 work. Up to 10 screens at a time
+              With --until it is the cap, default 10
+--horizontal  scrolls sideways. The axis is decided only by this flag (LazyRow · horizontalScroll · Pager)
+--at          the container to scroll — puts the wheel at the center of that line's node (a list · scroll area), and one screen is measured on that box.
+              Without it, the center of the image and the image's size. For lists side by side (columns of a wheel picker, etc.), pick with --at
+              Point at the line of the list · scroll area — pointing at an item's line makes one screen that item's size
+              If that line has several nodes, it doesn't scroll and exits 2 · need:"choose" — run it again with a matches entry's at.
+              #N here is the reading order on screen (not touch's list index)
+--until       after each wheel step checks whether the target is fully visible, and stops right there when it is. If it is already fully visible before scrolling, it doesn't scroll.
+              A target bigger than the viewport stops once as much as can be visible is in. If several match, the one that came in first in the scrolling direction
+                <file>:<line>[#N]  that line's node. Inside a lazy list #N is the same list index as touch (from 1),
+                                   outside a list the reading order counted past the screen too
+                any other text     whatever has that text in its semantics text · contentDescription (text drawn without semantics can't be found —
+                                   find it by line then)
+              If not found, it stays scrolled to the cap with found:null · exit 1 — check container.canScrollForward to see if it can scroll further
+
+Response
+  moved      whether node positions inside the scrolled area changed — false means it reached the end or there is nothing scrollable at the wheel position (pick with --at)
+  container  what was scrolled (at · box · axis). For a lazy list, also total (item count) · first · last (visible indices) ·
+             canScrollForward · canScrollBackward (whether it can scroll further either way)
+  found      only with --until. The target on the screen where it stopped — same shape as an appeared item; put its at straight into touch --at
+  appeared   items not there before scrolling that became visible. For a lazy list matched by key (if any) or else index,
+             otherwise by the semantic content inside the scrolled area. Each item carries only what it has —
+               index · key   list index (from 0; a looping list keeps its virtual index) · the list's key
+               box · visible image px box · visible share (0~1). box is left out when the box isn't certain
+               at            the line to put straight into touch --at
+               semantics     semantics in the box — text · contentDescription · stateDescription · editableText · heading ·
+                             role(Button · Checkbox …) · testTag · selected · toggleableState(On · Off · Indeterminate) ·
+                             disabled · focused · progress · actions(click · longClick · scrollBy · setText)
+  disappeared  items that were visible and went away — index · key · semantics (from the screen before scrolling)
+  passed       items visible only during the scroll that went past — index · key · semantics, in the order they passed. disappeared · passed · appeared
+               cover the scrolled range without overlap. They aren't on screen now, so they have no box · at (use --until to press one)
+Don't repeat touch press · drag to scroll a list — each call is cut off, it jumps on the viewer, and you don't know how far it scrolled.

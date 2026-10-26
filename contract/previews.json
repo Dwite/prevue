@@ -1,0 +1,39 @@
+{
+  "status": 200,
+  "schema": {
+    "file": "string",
+    "previews": [
+      {
+        "file": "string",
+        "fqn": "string",
+        "index": "number",
+        "methodParams": [
+          "empty"
+        ],
+        "params": {},
+        "previewId": "string"
+      }
+    ]
+  },
+  "example": {
+    "file": "<repo>/app/src/main/kotlin/demo/Cards.kt",
+    "previews": [
+      {
+        "fqn": "demo.CardsKt.Card0",
+        "previewId": "Card0",
+        "params": {},
+        "file": "<repo>/app/src/main/kotlin/demo/Cards.kt",
+        "index": 0,
+        "methodParams": []
+      },
+      {
+        "fqn": "demo.CardsKt.Card1",
+        "previewId": "Card1",
+        "params": {},
+        "file": "<repo>/app/src/main/kotlin/demo/Cards.kt",
+        "index": 1,
+        "methodParams": []
+      }
+    ]
+  }
+}

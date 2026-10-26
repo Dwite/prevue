@@ -1,0 +1,4 @@
+prevue reload [file...]
+
+Compiles the changed files and redraws. The watcher catches saves, so this is usually unnecessary — use it only when the watcher missed one (when wait's TIMEOUT says so).
+Without files, it is the current preview's file.

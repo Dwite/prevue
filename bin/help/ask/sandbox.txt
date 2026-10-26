@@ -1,0 +1,13 @@
+Using previews in Codex needs a sandbox setting. The settings below need to go into `{config}`.
+
+```toml
+[sandbox_workspace_write]
+network_access = true
+writable_roots = ["{root}"]
+```
+
+- It's a Codex **user-wide setting**, so it applies to **every project**, not just this one, and stays until removed
+- `network_access = true` allows not just localhost but **the sandbox's external network access** too
+- It takes effect after **restarting Codex**
+
+Shall I add it for you? Existing settings stay as they are; only these values are added.

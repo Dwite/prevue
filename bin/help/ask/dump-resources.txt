@@ -1,0 +1,1 @@
+Resources have changed, so the project's resources need to be read again once. It's already built, so it'll be quick, and no project files are changed.

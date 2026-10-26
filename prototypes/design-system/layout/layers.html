@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 시안 — 떠 있는 층</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="draft.css">
+<style>
+  .win.wide { width: 1440px; height: 900px; position: relative; }
+  .frames .win { zoom: var(--draft-zoom, .55); }
+  .nav { display: flex; align-items: center; gap: var(--space-12); height: 52px; flex: none; padding: 0 var(--space-16); border-bottom: 1px solid var(--outline-variant); position: relative; }
+  .nav .back { display: inline-flex; align-items: center; gap: var(--space-4); color: var(--on-surface-variant); font: var(--type-label-large); }
+  .nav .title { position: absolute; left: 50%; transform: translateX(-50%); font: var(--type-title-small); }
+  .nav .grow { flex: 1; }
+  .nav .tools { display: flex; align-items: center; gap: var(--space-4); position: relative; }
+  .nav .tile { width: var(--control-medium); height: var(--control-medium); font: var(--type-label-large); }
+  .ws { display: flex; flex-direction: column; height: 100%; }
+  .ws .body { display: flex; flex: 1; min-height: 0; }
+  .stagebox { flex: 1; min-width: 0; display: grid; place-items: center; position: relative; }
+  .bare { position: relative; outline: 2px solid var(--live); }
+  .bare img { display: block; height: 640px; width: auto; }
+  .pickbox { position: absolute; border: 2px solid var(--pick); background: var(--pick-container); border-radius: var(--corner-small); }
+  .pickbox .tag { position: absolute; left: -2px; bottom: calc(100% + var(--space-4)); padding: 0 var(--space-6); border-radius: var(--corner-small); background: var(--pick); color: var(--on-pick); font: var(--type-code-small); line-height: 20px; white-space: nowrap; }
+  .panel { width: 264px; flex: none; border-left: 1px solid var(--outline-variant); padding: var(--space-16) var(--space-12); display: flex; flex-direction: column; gap: var(--space-12); background: var(--surface); position: relative; }
+  .panel h4 { margin: 0 var(--space-4) var(--space-6); color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .it { display: flex; align-items: center; gap: var(--space-8); height: var(--control-large); padding: 0 var(--space-8); border-radius: var(--corner-medium); color: var(--on-surface-variant); font: var(--type-label-large); white-space: nowrap; }
+  .it .d { margin-left: auto; font: var(--type-code-small); }
+  .it.on { background: var(--primary-container); color: var(--on-surface); }
+  .zrow { display: flex; align-items: center; gap: var(--space-2); margin-top: auto; padding-top: var(--space-12); border-top: 1px solid var(--outline-variant); position: relative; }
+  .zrow .grow { flex: 1; }
+  .ic { width: 16px; height: 16px; flex: none; }
+
+  /* 층 공통 — 팝오버 · 캡슐은 세 번째 그림자, 시트는 네 번째 + 막 */
+  .pop { position: absolute; background: var(--surface-container); border-radius: var(--corner-large); box-shadow: var(--elevation-3); padding: var(--space-12); z-index: 3; }
+  .sheet { position: absolute; background: var(--surface-container); border-radius: var(--corner-large); box-shadow: var(--elevation-4); z-index: 4; }
+  .scrim { position: absolute; inset: 0; background: var(--scrim); z-index: 3; }
+  .cap { display: flex; align-items: center; gap: var(--space-12); padding: var(--space-8) var(--space-8) var(--space-8) var(--space-16); background: var(--surface-container); border-radius: var(--corner-full); box-shadow: var(--elevation-3); white-space: nowrap; z-index: 3; }
+  .cap .ref { font: var(--type-code); color: var(--on-surface); }
+  .cap .ctx { color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .cap .ok { display: inline-flex; align-items: center; gap: var(--space-4); color: var(--success); font: var(--type-label-medium); }
+  .cap .again { padding: var(--space-4) var(--space-12); border-radius: var(--corner-full); background: var(--primary); color: var(--on-primary); font: var(--type-label-medium); }
+  .choose h2 { margin: 0 0 var(--space-8); font: var(--type-title-small); }
+  .choose p { margin: 0 0 var(--space-12); color: var(--on-surface-variant); font: var(--type-body-small); }
+  .choose .opt { display: flex; align-items: center; height: var(--control-large); padding: 0 var(--space-12); margin-bottom: var(--space-4); border: 1px solid var(--outline-variant); border-radius: var(--corner-medium); font: var(--type-code-small); color: var(--on-surface); }
+  .choose .opt:first-of-type { background: var(--state-hover); }
+  .choose .cancel { margin-top: var(--space-8); text-align: right; color: var(--on-surface-variant); font: var(--type-label-large); }
+  /* L2 — 패널 안 "가리킨 곳" */
+  .picked { padding: var(--space-12); border: 1px solid var(--outline-variant); border-radius: var(--corner-medium); display: grid; gap: var(--space-6); }
+  .picked .ref { font: var(--type-code-small); color: var(--on-surface); word-break: break-all; }
+  .picked .chain { color: var(--on-surface-variant); font: var(--type-code-small); }
+  .picked .row { display: flex; align-items: center; gap: var(--space-8); }
+  .picked .ok { color: var(--success); font: var(--type-label-medium); }
+  .picked .again { padding: var(--space-4) var(--space-12); border-radius: var(--corner-medium); background: var(--primary); color: var(--on-primary); font: var(--type-label-medium); }
+  /* 공통 층 */
+  .timing { display: grid; grid-template-columns: auto auto; gap: var(--space-4) var(--space-16); font: var(--type-code-small); color: var(--on-surface-variant); }
+  .timing b { color: var(--on-surface); font-weight: var(--weight-regular); text-align: right; }
+  .menu .it { height: var(--control-medium); }
+  .help { width: 560px; padding: var(--space-20) var(--space-24); }
+  .help h2 { margin: 0 0 var(--space-12); font: var(--type-title-medium); }
+  .help .k { display: grid; grid-template-columns: 1fr auto; gap: var(--space-8) var(--space-24); font: var(--type-body-medium); }
+  .help .k span:nth-child(even) { color: var(--on-surface-variant); font: var(--type-code-small); }
+</style>
+</head>
+<body>
+<div class="page-top">
+  <h1 id="h1"></h1><span class="note" id="note"></span><span class="grow"></span>
+  <a href="./">← 시안 목록</a><a id="lang" href="#"></a>
+</div>
+<div id="root"></div>
+<script src="draft.js"></script>
+<script>
+  const T = {
+    ko: {
+      h1: "떠 있는 층", note: "작업 공간(확정) 위 · 라이트는 가리켜 복사된 순간, 다크는 클립보드가 막혀 \"눌러서 복사\" + 후보 고르기 · 늦은 결과가 앞의 캡슐을 덮지 않는 규칙 · 키보드로 연 층만 닫을 때 포커스를 돌려주는 규칙은 그대로",
+      L1: "안 1 — 아래 가운데 캡슐 + 가운데 고르기 (지금 골격)",
+      L1d: "<b>눈이 가는 순서</b> 가리킨 박스 → 아래 캡슐. 결과 · 알림 · 오류가 모두 <b>무대 아래 가운데 캡슐</b> 하나로 온다. 작업 공간 아래가 비어(오른쪽 패널) 캡슐이 묶음과 다투지 않는다. 후보 고르기는 막을 깐 가운데 대화상자. 보드에서도 같은 자리라 화면마다 규칙이 하나다.",
+      L2: "안 2 — 가리킨 결과는 오른쪽 패널 맨 위",
+      L2d: "<b>눈이 가는 순서</b> 가리킨 박스 → 패널. 작업 공간에서는 결과가 패널 맨 위 \"가리킨 곳\" 칸에 <b>머물러</b> 사라지지 않고, 조상 사슬까지 적힌다. 후보 고르기도 그 칸 안에서 고른다. 대가: 보드에는 패널이 없어 <b>보드는 캡슐</b>로 남는다 — 같은 결과가 화면마다 다른 자리에 뜬다.",
+      L3: "안 3 — 가리킨 박스 꼬리표가 결과를 말한다",
+      L3d: "<b>눈이 가는 순서</b> 가리킨 박스 하나. 박스 위 꼬리표가 <b>파일:라인 · 복사됨</b>까지 말하고, 막히면 꼬리표 끝에 \"눌러서 복사\". 후보 고르기는 꼬리표에서 내려오는 팝오버. 눈을 옮길 곳이 없다. 대가: 꼬리표가 그림 위라 <b>그림을 가린다</b>, 긴 경로는 잘린다. 캡슐은 오류 · 알림만 맡는다.",
+      C: "공통 — 상태 팝오버 · 확대 메뉴 · 폴더 팝오버 · 도움말",
+      Cd: "세 안 모두 같다. <b>상태 팝오버</b>는 알약 아래, <b>확대 메뉴</b>는 패널 아래 확대 줄에서 위로(맞춤 · 실제 크기 · 200%), <b>폴더 팝오버</b>는 지금처럼 헤더 부제의 폴더 글자 아래(경로 복사 · Finder에서 보기, 이 그림에는 없다). <b>도움말</b>(?)은 막을 깐 가운데 시트(다크 창) — 단축키 표 자체라 화면의 단축키 표시를 걷은 지금도 남긴다.",
+      copied: "복사됨", again: "눌러서 복사", choose: "DrinkCard.kt — 2곳에 있다. 어느 것인가?", chooseSub: "고르면 이 데몬에서는 다시 묻지 않는다", cancel: "취소", picked: "가리킨 곳",
+      tDetect: "감지", tCompile: "컴파일", tRender: "렌더", tFirst: "첫 장", tBoard: "보드 12장", fit: "맞춤", actual: "실제 크기", copyPath: "경로 복사", reveal: "Finder에서 보기", help: "단축키",
+      hk: [["파일 열기", "/ · ⌘K"], ["확대 · 축소", "+ · −"], ["맞춤", "0"], ["나가기", "esc"], ["이 도움말", "?"]],
+      zoom: "확대", size: "크기",
+    },
+    en: {
+      h1: "Floating layers", note: "On the confirmed workspace · light: just picked and copied · dark: clipboard blocked (\"Click to copy\") + candidate chooser · late results never cover the newer capsule, and focus returns only for keyboard-opened layers",
+      L1: "Option 1 — bottom-center capsule + centered chooser (today's skeleton)",
+      L1d: "<b>Eye order</b> picked box → bottom capsule. Results, notices and errors all arrive in <b>one capsule at the bottom center</b> of the stage. The workspace bottom is now free (right panel), so nothing competes. The chooser is a centered dialog over a scrim. Same spot on the board, so one rule everywhere.",
+      L2: "Option 2 — picked result at the top of the right panel",
+      L2d: "<b>Eye order</b> picked box → panel. In the workspace the result <b>stays</b> in a \"Picked\" box at the top of the panel, with the ancestor chain. The chooser lives in that box too. Cost: the board has no panel, so <b>the board keeps the capsule</b>: one result, two places.",
+      L3: "Option 3 — the picked box's tag tells the result",
+      L3d: "<b>Eye order</b> the picked box only. Its tag says <b>file:line · copied</b>; when blocked, \"Click to copy\" sits at the tag's end. The chooser drops from the tag as a popover. No eye travel. Cost: the tag sits on the image and <b>covers it</b>; long paths truncate. The capsule keeps only errors and notices.",
+      C: "Shared — status popover · zoom menu · folder popover · help",
+      Cd: "Same in all options. <b>Status popover</b> under the pill, <b>zoom menu</b> rising from the panel's zoom row (Fit · Actual size · 200%), <b>folder popover</b> under the header folder name as today (Copy path · Show in Finder; not drawn here). <b>Help</b> (?) is a centered sheet over a scrim (dark frame); it is the shortcut table itself, so it stays even with on-screen shortcut hints removed.",
+      copied: "Copied", again: "Click to copy", choose: "DrinkCard.kt is in 2 places. Which one?", chooseSub: "This daemon will remember your choice", cancel: "Cancel", picked: "Picked",
+      tDetect: "Detected", tCompile: "Compiled", tRender: "Rendered", tFirst: "First preview", tBoard: "All 12 previews", fit: "Fit", actual: "Actual size", copyPath: "Copy path", reveal: "Show in Finder", help: "Keyboard shortcuts",
+      hk: [["Open file", "/ · ⌘K"], ["Zoom in · out", "+ · −"], ["Fit", "0"], ["Leave", "esc"], ["This help", "?"]],
+      zoom: "Zoom", size: "Size",
+    },
+  }[LANG];
+
+  const REF = "core/ui/…/DrinkCard.kt:31", CTX = "PearlListPreview · Text";
+  const CHECK = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3.5 8.5 3 3 6-7"/></svg>`;
+  const BACK = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg>`;
+  const nav = (state, pop) => `<div class="nav"><span class="brand">${ICON.glyph}</span><span class="sep"></span><span class="tile">${APP.tile}</span>
+    <span class="back">${BACK}PearlPreviews</span><div class="title">PearlListPreview</div><span class="grow"></span><div class="tools">${pillHtml(state)}<button class="icon-btn">?</button>${pop || ""}</div></div>`;
+  const stage = (tag) => `<div class="bare"><img src="../img/pearl/PearlListPreview.jpg" alt=""><div class="pickbox" style="left:6%;top:24%;width:44%;height:14%">${tag}</div></div>`;
+  const panel = (top, menu) => `<aside class="panel">${top || ""}<div><h4>${T.size}</h4><span class="it on">@Preview<span class="d">360×780</span></span><span class="it">320×640<span class="d">320×640</span></span></div>
+    <div class="zrow">${menu || ""}<span class="it">−</span><span class="it">93%</span><span class="it">+</span><span class="grow"></span><span class="it">${T.fit}</span></div></aside>`;
+  const ws = (state, { tag = `<span class="tag">Text</span>`, over = "", top = "", menu = "", pop = "" } = {}) =>
+    `<div class="ws">${nav(state, pop)}<div class="body"><div class="stagebox">${stage(tag)}${over}</div>${panel(top, menu)}</div></div>`;
+
+  const capsule = blocked => `<div class="cap" style="position:absolute;left:50%;bottom:var(--space-24);transform:translateX(-50%)"><span class="ctx">${CTX}</span><span class="ref">${REF}</span>${blocked ? `<span class="again">${T.again}</span>` : `<span class="ok">${CHECK}${T.copied}</span>`}</div>`;
+  const chooserBox = (style) => `<div class="sheet choose" style="${style}"><h2>${T.choose}</h2><p>${T.chooseSub}</p><div class="opt">core/ui/src/main/kotlin/…/DrinkCard.kt</div><div class="opt">feature/pearl/src/main/kotlin/…/DrinkCard.kt</div><div class="cancel">${T.cancel}</div></div>`;
+
+  const L1 = state => state === "ok" ? ws(state, { over: capsule(false) })
+    : ws(state, { over: capsule(true) + `<div class="scrim"></div>` + chooserBox("left:50%;top:50%;width:520px;padding:var(--space-20);transform:translate(-50%,-50%)") });
+  const L2 = state => ws(state, { top: `<div><h4>${T.picked}</h4><div class="picked"><span class="ref">${REF}</span><span class="chain">PearlScreen › LazyGrid › DrinkCard › Text</span>
+      <div class="row">${state === "ok" ? `<span class="ok">✓ ${T.copied}</span>` : `<span class="again">${T.again}</span>`}</div></div></div>
+      ${state === "busy" ? `<div class="picked choose" style="gap:var(--space-4);min-width:0;overflow:hidden"><b style="font:var(--type-label-large)">${T.choose}</b>${["core/ui/…/DrinkCard.kt", "feature/pearl/…/DrinkCard.kt"].map(p => `<span class="opt" style="display:flex;align-items:center;height:var(--control-medium);padding:0 var(--space-8);border:1px solid var(--outline-variant);border-radius:var(--corner-medium);font:var(--type-code-small);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">${p}</span>`).join("")}<span class="cancel" style="text-align:right;color:var(--on-surface-variant);font:var(--type-label-medium)">${T.cancel}</span></div>` : ""}` });
+  const L3 = state => ws(state, { tag: `<span class="tag" style="display:inline-flex;gap:var(--space-8);align-items:center">DrinkCard.kt:31 ${state === "ok" ? `· ✓ ${T.copied}` : `<span style="padding:0 var(--space-6);border-radius:var(--corner-small);background:var(--on-pick);color:var(--pick)">${T.again}</span>`}</span>
+      ${state === "busy" ? chooserBox("left:-2px;top:calc(100% + var(--space-8));width:420px;padding:var(--space-16);box-shadow:var(--elevation-3)") : ""}` });
+  const CM = state => state === "ok"
+    ? ws(state, { pop: `<div class="pop" style="right:40px;top:44px;width:240px"><div class="timing"><span>${T.tDetect}</span><b>12ms</b><span>${T.tCompile}</span><b>410ms</b><span>${T.tRender}</span><b>180ms</b><span>${T.tFirst}</span><b>640ms</b><span>${T.tBoard}</span><b>2.1s</b></div></div>`,
+        menu: `<div class="pop menu" style="left:0;bottom:calc(100% + var(--space-4));width:200px;padding:var(--space-6)"><span class="it">${T.fit}<span class="d">0</span></span><span class="it">${T.actual}</span><span class="it">200%</span></div>` })
+    : ws(state, { over: `<div class="scrim"></div><div class="sheet help" style="left:50%;top:50%;transform:translate(-50%,-50%)"><h2>${T.help}</h2><div class="k">${T.hk.map(([a, b]) => `<span>${a}</span><span>${b}</span>`).join("")}</div></div>` });
+
+  document.getElementById("h1").textContent = T.h1;
+  document.getElementById("note").textContent = T.note;
+  document.title = `${LANG === "ko" ? "구조 시안" : "Layout draft"} — ${T.h1}`;
+  if (new URLSearchParams(location.search).get("zoom") === "1") document.documentElement.style.setProperty("--draft-zoom", "1");
+  document.getElementById("root").innerHTML = [["L1", L1], ["L2", L2], ["L3", L3], ["C", CM]].map(([k, f]) =>
+    `<section class="variant" id="${k}"><h2>${T[k]}${k === "L3" ? (LANG === "ko" ? " ✓ 확정" : " ✓ confirmed") : ""}</h2><p class="diff">${T[k + "d"]}</p>${frames(f)}</section>`).join("");
+  langButton();
+</script>
+</body>
+</html>

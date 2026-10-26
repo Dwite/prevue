@@ -1,0 +1,5 @@
+prevue render [--fresh] [--at <ms>]
+
+Redraws the current card. --fresh uses a new task, --at is the animation frame at t=ms.
+--at advances the new task's clock by ms, moving Animatable · Transition · animate*AsState to that point.
+delay() · withTimeout inside LaunchedEffect use the real clock and can't be advanced — if a coroutine waits that way, warnings says so.

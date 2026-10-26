@@ -1,0 +1,4 @@
+prevue status
+
+The daemon's state — module · board · tabs · last (the last render result) · stale (why it is stale, and the remedy) · memory · viewer.
+If one repository has daemons for two or more apps, daemons lists their port · module · viewer.

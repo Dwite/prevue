@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 시안 — 준비 → 보드</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="draft.css">
+<style>
+  .ctl { display: flex; gap: var(--space-8); margin: 0 0 var(--space-16); }
+  .ctl button { height: var(--control-large); padding: 0 var(--space-12); border: 1px solid var(--outline); border-radius: var(--corner-medium); background: var(--surface-container); color: var(--on-surface); font: var(--type-label-large); cursor: pointer; }
+  .grid { display: grid; grid-template-columns: repeat(2, max-content); gap: var(--space-24); }
+  .win.wide { width: 1440px; height: 900px; zoom: var(--draft-zoom, .5); }
+  iframe { width: 1440px; height: 900px; border: 0; display: block; }
+  figcaption b { color: var(--on-surface); }
+</style>
+</head>
+<body>
+<div class="page-top">
+  <h1>준비 화면 → 보드</h1><span class="note">실제 준비 장면 코드 위 · 네 창이 같은 시간표로 돈다(약 12초에 한 바퀴) · 보드는 확정한 레일 + 흐르는 묶음</span><span class="grow"></span>
+  <a href="./">← 시안 목록</a>
+</div>
+<section class="variant">
+  <p class="diff"><b>지금(hero)</b>은 그림이 가운데에서 카드 자리까지 약 1초 날아가며 줄고, 도착한 카드가 0.6초 팔레트 색으로 빛난다. 나머지 셋은 <b>그림을 날리지 않는다</b> — 보드는 처음부터 준비 화면 아래에 있고, 준비 화면이 0.3초에 걷힌다.</p>
+  <div class="ctl"><button type="button" id="replay">모두 다시 재생</button></div>
+  <div class="grid">
+    <figure><figcaption><b>지금 — hero</b> · 그림이 카드 자리로 날아감 + 도착 빛</figcaption><div class="win wide"><iframe src="handoff-live.html?mode=hero"></iframe></div></figure>
+    <figure><figcaption><b>안 1 — 걷히기</b> · 준비 화면만 0.3초에 사라진다</figcaption><div class="win wide"><iframe src="handoff-live.html?mode=fade"></iframe></div></figure>
+    <figure><figcaption><b>안 2 — 걷히기 + 커서</b> · 같은 전환에 첫 카드에 보드 커서(포커스 테)가 남아 어디가 그 그림인지 짚는다</figcaption><div class="win wide"><iframe src="handoff-live.html?mode=cursor"></iframe></div></figure>
+    <figure><figcaption><b>안 3 — 떠오르기</b> · 준비 화면이 걷히며 카드가 8px 아래에서 차례로 떠오른다(--motion-stagger)</figcaption><div class="win wide"><iframe src="handoff-live.html?mode=rise"></iframe></div></figure>
+  </div>
+</section>
+<script>
+  document.getElementById("replay").addEventListener("click", () => document.querySelectorAll("iframe").forEach(f => f.contentWindow.postMessage("replay", "*")));
+</script>
+</body>
+</html>

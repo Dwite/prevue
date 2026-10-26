@@ -1,0 +1,5 @@
+prevue type "<text>"
+
+On the interactive card (prevue focus <index> --on), types at the cursor of the focused text field like a keyboard and returns the settled PNG (settled:false if it doesn't stop within 3 seconds).
+First press the field with prevue touch --at <file>:<line> to focus it. Without a focused field it types nothing and returns ok:false (exit 1).
+Any characters work, Korean included. There is no way to delete or replace — to start over, turn focus off and on (interactive always starts on the first screen).

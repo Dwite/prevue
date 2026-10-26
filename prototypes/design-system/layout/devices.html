@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 시안 — 기기 고르기</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="draft.css">
+<style>
+  .win.wide { width: 1440px; height: 900px; }
+  .frames .win { zoom: var(--draft-zoom, .55); }
+  .nav { display: flex; align-items: center; gap: var(--space-12); height: 52px; flex: none; padding: 0 var(--space-16); border-bottom: 1px solid var(--outline-variant); position: relative; }
+  .nav .back { display: inline-flex; align-items: center; gap: var(--space-4); color: var(--on-surface-variant); font: var(--type-label-large); }
+  .nav .title { position: absolute; left: 50%; transform: translateX(-50%); font: var(--type-title-small); }
+  .nav .grow { flex: 1; }
+  .nav .tools { display: flex; align-items: center; gap: var(--space-4); }
+  .nav .tile { width: var(--control-medium); height: var(--control-medium); font: var(--type-label-large); }
+  .ws { display: flex; flex-direction: column; height: 100%; }
+  .ws .body { display: flex; flex: 1; min-height: 0; }
+  .stagebox { flex: 1; min-width: 0; display: grid; place-items: center; }
+  .dev { position: relative; padding: 12px; border-radius: 28px; background: var(--device-body); box-shadow: var(--elevation-2); }
+  .dev .scr { display: flex; border-radius: 18px; overflow: hidden; }
+  .dev .scr img { display: block; height: 520px; width: auto; }
+
+  .panel { width: 264px; flex: none; border-left: 1px solid var(--outline-variant); padding: var(--space-16) var(--space-12); display: flex; flex-direction: column; gap: var(--space-16); overflow: hidden; background: var(--surface); position: relative; }
+  .panel h4 { margin: 0 var(--space-4) var(--space-6); color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .panel h5 { margin: var(--space-8) var(--space-8) var(--space-2); color: var(--on-surface-disabled); font: var(--type-label-small); }
+  .it { display: flex; align-items: center; gap: var(--space-8); height: var(--control-large); padding: 0 var(--space-8); border-radius: var(--corner-medium);
+    color: var(--on-surface-variant); font: var(--type-label-large); white-space: nowrap; }
+  .it .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .it .d { color: var(--on-surface-variant); font: var(--type-code-small); }
+  .it.mono .nm { font: var(--type-code); }
+  .it.on { background: var(--primary-container); color: var(--on-surface); }
+  .it:hover, .it.hover { background: var(--state-hover); }
+  .cls { padding: 0 var(--space-4); border: 1px solid var(--outline-variant); border-radius: var(--corner-small); color: var(--on-surface-variant); font: var(--type-code-small); }
+  .list { display: flex; flex-direction: column; gap: var(--space-2); }
+  .zrow { display: flex; align-items: center; gap: var(--space-2); margin-top: auto; padding-top: var(--space-12); border-top: 1px solid var(--outline-variant); }
+  .zrow .grow { flex: 1; }
+  .seg { display: flex; gap: var(--space-2); }
+  .ic { width: 16px; height: 16px; flex: none; }
+  /* 실루엣 — 기기 비율대로 그린 작은 윤곽(그림이 아니라 크롬이라 무채색) */
+  .sil { flex: none; display: grid; place-items: center; width: 20px; height: 20px; }
+  .sil i { display: block; border: 1.5px solid currentColor; border-radius: var(--corner-small); }
+  .sil.fold i { border-style: solid; position: relative; }
+  .sil.fold i::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px dashed currentColor; }
+
+  /* D2 — 고르기 상자 + 펼친 메뉴 */
+  .select { display: flex; align-items: center; gap: var(--space-8); height: var(--control-large); padding: 0 var(--space-8); border: 1px solid var(--outline); border-radius: var(--corner-medium); color: var(--on-surface); font: var(--type-label-large); }
+  .select .nm { flex: 1; }
+  .menu { position: absolute; left: var(--space-12); right: var(--space-12); padding: var(--space-6); background: var(--surface-container); border-radius: var(--corner-large); box-shadow: var(--elevation-3); z-index: 2; }
+  /* D3 — 실루엣 격자 */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+  .card { display: grid; justify-items: center; gap: var(--space-4); padding: var(--space-8) var(--space-4); border: 1px solid var(--outline-variant); border-radius: var(--corner-medium); color: var(--on-surface-variant); }
+  .card b { color: var(--on-surface); font: var(--type-label-medium); text-align: center; white-space: nowrap; }
+  .card span { font: var(--type-code-small); }
+  .card .shape { height: 40px; display: grid; place-items: center; }
+  .card .shape i { display: block; border: 1.5px solid currentColor; border-radius: var(--corner-small); position: relative; }
+  .card .shape i.f::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px dashed currentColor; }
+  .card.on { background: var(--primary-container); border-color: var(--outline); color: var(--on-surface); }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+  .chip { padding: var(--space-4) var(--space-8); border: 1px solid var(--outline-variant); border-radius: var(--corner-medium); color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .chip.mono { font: var(--type-code-small); }
+  .chip.on { background: var(--primary-container); border-color: var(--outline); color: var(--on-surface); }
+</style>
+</head>
+<body>
+<div class="page-top">
+  <h1 id="h1"></h1><span class="note" id="note"></span><span class="grow"></span>
+  <a href="./">← 시안 목록</a><a id="lang" href="#"></a>
+</div>
+<div id="root"></div>
+<script src="draft.js"></script>
+<script>
+  const T = {
+    ko: {
+      h1: "기기 · 프리셋 고르기", note: "오른쪽 패널 안 1(목록) 위 · 프리셋 4 + 기기 10(새로 Pixel 9 · iPhone 17 · iPhone Air · iPhone 17 Pro Max · Pixel 9 Pro Fold · Pixel Tablet) · 라이트는 Pixel 9 Pro Fold, 다크는 메뉴를 연 모습",
+      D1: "안 1 — 한 목록, 기기는 폰 · 폴더블 · 태블릿으로 나눈다",
+      D1d: "<b>눈이 가는 순서</b> 분류 머리 → 이름 → dp. 열네 칸이 <b>모두 늘 보인다</b>. 기기를 안드로이드 폰 · iPhone · 폴더블 · 태블릿 작은 머리로 나눠 찾기 쉽고, 행마다 비율 윤곽(폴더블은 가운데 점선)과 dp가 붙는다. 대가: 패널 세로를 가장 많이 쓴다(약 600px) — 자세 · 확대까지 넣으면 900px 창에서 빠듯해 패널이 스크롤될 수 있다.",
+      D2: "안 2 — 프리셋은 목록, 기기는 고르기 상자",
+      D2d: "<b>눈이 가는 순서</b> 프리셋 목록 → 기기 상자. 기기 열을 <b>상자 하나</b>에 넣어 패널이 짧다. 상자를 열면(다크 창) 안 1과 같은 분류 목록이 메뉴로 뜬다. 기기를 더 늘려도 패널 길이가 그대로다. 대가: 기기를 바꾸려면 <b>한 번 더 눌러야</b> 하고, 고르지 않은 기기는 안 보인다.",
+      D3: "안 3 — 기기는 실루엣 격자, 프리셋은 칩",
+      D3d: "<b>눈이 가는 순서</b> 윤곽 모양 → 이름. 기기를 <b>비율대로 그린 윤곽</b> 3열 격자로 둬 폰 · 폴더블 · 태블릿이 모양으로 갈린다. 프리셋은 한 줄 칩. 대가: 이름이 짧아야 한다(\"9 Pro Fold\"처럼 줄인 이름), 칸이 작아 dp 글자가 빽빽하다.",
+      size: "크기", device: "기기", android: "Android", iphone: "iPhone", phone: "폰", foldable: "폴더블", tablet: "태블릿", custom: "커스텀", posture: "기기 자세", fold: "접기", rot: "돌리기", hinge: "힌지 선", fit: "맞춤",
+      pickDevice: "기기 고르기", none: "기기 없음",
+    },
+    en: {
+      h1: "Device and preset picker", note: "On right panel option 1 (list) · 4 presets + 10 devices (new: Pixel 9 · iPhone 17 · iPhone Air · iPhone 17 Pro Max · Pixel 9 Pro Fold · Pixel Tablet) · light: Pixel 9 Pro Fold picked, dark: menu open",
+      D1: "Option 1 — one list, devices grouped as phone · foldable · tablet",
+      D1d: "<b>Eye order</b> group head → name → dp. All fourteen rows are <b>always visible</b>. Small heads group Android phones, iPhones, foldables and tablets; each row has a ratio outline (foldables with a center dash) and dp. Cost: tallest panel (about 600px); with posture and zoom a 900px window is tight and the panel may scroll.",
+      D2: "Option 2 — presets as a list, devices in a select box",
+      D2d: "<b>Eye order</b> preset list → device box. Ten devices fit in <b>one box</b>, so the panel stays short. Opening it (dark frame) shows the same grouped list as a menu. Adding devices never grows the panel. Cost: changing device takes <b>one more click</b>, and unpicked devices are hidden.",
+      D3: "Option 3 — devices as a silhouette grid, presets as chips",
+      D3d: "<b>Eye order</b> outline shape → name. Devices sit in a 3-column grid of <b>ratio-true outlines</b>, so phones, foldables and tablets differ by shape. Presets become one row of chips. Cost: names must be short (\"9 Pro Fold\"), and small cells crowd the dp text.",
+      size: "Size", device: "Device", android: "Android", iphone: "iPhone", phone: "Phone", foldable: "Foldable", tablet: "Tablet", custom: "Custom", posture: "Posture", fold: "Fold", rot: "Rotate", hinge: "Hinge line", fit: "Fit",
+      pickDevice: "Pick a device", none: "No device",
+    },
+  }[LANG];
+
+  // 새 기기의 dp 는 공개 스펙 px 과 Android Studio 기기 정의의 밀도(Pixel 9 420 · 9 Pro Fold 390 · Tablet 320), iPhone 은 포인트(3x)로 확정했다
+  const PRESETS = [["original", "@Preview", "360×780", "C"], ["narrow", "320×640", "320×640", "C"], ["foldable", "673×841", "673×841", "M"], ["custom", T.custom, "240–1600", ""]];
+  const DEVICES = [
+    { g: "android", id: "s26", name: "Galaxy S26", short: "S26", dp: "360×780", r: [9, 19.5], c: "C" },
+    { g: "android", id: "pixel9", name: "Pixel 9", short: "Pixel 9", dp: "411×923", r: [9, 20], c: "C" },
+    { g: "iphone", id: "ip17", name: "iPhone 17", short: "iPhone 17", dp: "402×874", r: [9, 19.5], c: "C" },
+    { g: "iphone", id: "ipair", name: "iPhone Air", short: "iPhone Air", dp: "420×912", r: [9, 19.5], c: "C" },
+    { g: "iphone", id: "ip17pm", name: "iPhone 17 Pro Max", short: "17 Pro Max", dp: "440×956", r: [9, 19.5], c: "C" },
+    { g: "iphone", id: "duo", name: "iPhone Duo", short: "iPhone Duo", dp: "890×626", r: [14, 10], c: "M", f: 1 },
+    { g: "android", id: "fold8", name: "Galaxy Z Fold8", short: "Fold8", dp: "933×704", r: [13, 10], c: "E", f: 1 },
+    { g: "android", id: "ultra", name: "Galaxy Z Fold8 Ultra", short: "Fold8 Ultra", dp: "752×835", r: [9, 10], c: "M", f: 1 },
+    { g: "android", id: "pixelfold", name: "Pixel 9 Pro Fold", short: "9 Pro Fold", dp: "852×883", r: [10, 10.4], c: "E", f: 1 },
+    { g: "android", id: "tablet", name: "Pixel Tablet", short: "Pixel Tablet", dp: "1280×800", r: [16, 10], c: "E" },
+  ];
+  const SEL = "pixelfold";
+  const BACK = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg>`;
+  const MINUS = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h8"/></svg>`;
+  const PLUS = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h8M8 4v8"/></svg>`;
+  const shape = (d, max) => { const [w, h] = d.r, k = max / Math.max(w, h); return `<i class="${d.f ? "f" : ""}" style="width:${w * k}px;height:${h * k}px"></i>`; };
+  const sil = d => `<span class="sil${d.f ? " fold" : ""}">${shape(d, 16).replace('class="f"', 'class=""')}</span>`;
+  const row = d => `<span class="it${d.id === SEL ? " on" : ""}" title="${d.name}">${sil(d)}<span class="nm">${d.short}</span><span class="d">${d.dp}</span></span>`;
+  const grouped = () => ["android", "iphone"].map(g => `<h5>${T[g]}</h5>${DEVICES.filter(d => d.g === g).map(row).join("")}`).join("");
+  const presetList = () => `<div class="list">${PRESETS.map(([k, l, d, c]) => `<span class="it${k === "original" ? " mono" : ""}"><span class="nm">${l}</span><span class="d">${d}</span></span>`).join("")}</div>`;
+  const posture = `<div><h4>${T.posture}</h4><div class="seg"><span class="it">${T.fold}</span><span class="it">${T.rot}</span><span class="it on">${T.hinge}</span></div></div>`;
+  const zoom = `<div class="zrow"><span class="it">${MINUS}</span><span class="it">72%</span><span class="it">${PLUS}</span><span class="grow"></span><span class="it">${T.fit}</span></div>`;
+
+  const P1 = () => `<aside class="panel"><div><h4>${T.size}</h4>${presetList()}</div><div><h4>${T.device}</h4><div class="list">${grouped()}</div></div>${posture}${zoom}</aside>`;
+  const P2 = state => `<aside class="panel"><div><h4>${T.size}</h4>${presetList()}</div>
+    <div><h4>${T.device}</h4><span class="select">${sil(DEVICES[5])}<span class="nm">9 Pro Fold</span><span class="d">852×883</span>${ICON.chevron}</span>
+      ${state === "busy" ? `<div class="menu" style="top:260px"><div class="list">${grouped()}</div></div>` : ""}</div>${posture}${zoom}</aside>`;
+  const P3 = () => `<aside class="panel"><div><h4>${T.size}</h4><div class="chips">${PRESETS.map(([k, l]) => `<span class="chip${k === "original" ? " mono" : ""}">${l}</span>`).join("")}</div></div>
+    <div><h4>${T.device}</h4><div class="grid">${DEVICES.map(d => `<span class="card${d.id === SEL ? " on" : ""}"><span class="shape">${shape(d, 34)}</span><b>${d.short}</b><span>${d.dp}</span></span>`).join("")}</div></div>${posture}${zoom}</aside>`;
+
+  const nav = state => `<div class="nav"><span class="brand">${ICON.glyph}</span><span class="sep"></span><span class="tile">${APP.tile}</span>
+    <span class="back">${BACK}PearlPreviews</span><div class="title">PearlListPreview</div><span class="grow"></span><div class="tools">${pillHtml(state)}<button class="icon-btn">?</button></div></div>`;
+  const stage = `<div class="dev"><div class="scr"><img src="../img/pearl/PearlListPreview.jpg" alt=""><img src="../img/pearl/PearlListThemesPreview_2.jpg" alt=""></div></div>`;
+  const page = panel => state => `<div class="ws">${nav(state)}<div class="body"><div class="stagebox">${stage}</div>${panel(state)}</div></div>`;
+
+  document.getElementById("h1").textContent = T.h1;
+  document.getElementById("note").textContent = T.note;
+  document.title = `${LANG === "ko" ? "구조 시안" : "Layout draft"} — ${T.h1}`;
+  if (new URLSearchParams(location.search).get("zoom") === "1") document.documentElement.style.setProperty("--draft-zoom", "1");
+  document.getElementById("root").innerHTML = [["D1", page(P1)], ["D2", page(P2)], ["D3", page(P3)]].map(([k, f]) =>
+    `<section class="variant" id="${k}"><h2>${T[k]}${k === "D1" ? (LANG === "ko" ? " ✓ 확정 — Android · iPhone 두 그룹" : " ✓ confirmed: two groups, Android · iPhone") : ""}</h2><p class="diff">${T[k + "d"]}</p>${frames(f)}</section>`).join("");
+  langButton();
+</script>
+</body>
+</html>

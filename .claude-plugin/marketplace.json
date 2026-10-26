@@ -1,0 +1,18 @@
+{
+  "name": "prevue",
+  "owner": {
+    "name": "Kakao Corp."
+  },
+  "plugins": [
+    {
+      "name": "prevue",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/kakao/prevue.git",
+        "ref": "main"
+      },
+      "description": "Opens Jetpack Compose @Previews in the browser without Android Studio, and lets your agent read the spot you point at on screen as a file and line.",
+      "category": "Developer Tools"
+    }
+  ]
+}

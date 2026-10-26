@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "schema": {
+    "by": "string",
+    "ok": "boolean",
+    "settled": "boolean",
+    "type": "string",
+    "x": "number",
+    "y": "number"
+  },
+  "example": {
+    "ok": true,
+    "type": "tap",
+    "x": 10,
+    "y": 10,
+    "by": "viewer",
+    "settled": false
+  }
+}

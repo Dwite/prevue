@@ -1,0 +1,11 @@
+{
+  "status": 500,
+  "schema": {
+    "error": "string",
+    "ok": "boolean"
+  },
+  "example": {
+    "ok": false,
+    "error": "java.lang.IllegalStateException: 열린 탭이 아니다: <repo>/app/src/main/kotlin/demo/Other.kt"
+  }
+}

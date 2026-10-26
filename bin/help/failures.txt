@@ -1,0 +1,12 @@
+failure values on cards and responses
+
+  COMPILE        compile failed. Read message and fix the code. The image is then the stale one from before the save — don't conclude it is fixed.
+                 If message suggests prevue warmup <file>, that module's build settings are needed (needs the user's approval)
+  LINKAGE        callers in another file were left on the old class. Usually it recompiles them itself. If not, message says what to do
+  NOT_FOUND      there is no preview with that FQN — see the list with prevue previews <file>
+  DI             the preview needs a DI container. This tool can't fix it — tell the person and stop
+  ANDROID_VIEW   the screen relies on a real device, such as AndroidView. This tool can't fix it — tell the person and stop
+  TIMEOUT        waiting or drawing took too long. message says what it couldn't wait for
+  EXCEPTION      the render threw. Pass message to the person as is. If it threw because the R class wasn't found, stale.build-files comes with it — the dump is stale, so go to the remedy's warmup
+
+An image with stale is not an image of the current code. Read stale's reason (compile · resources · build, etc.) and remedy.

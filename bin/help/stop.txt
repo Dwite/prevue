@@ -1,0 +1,4 @@
+prevue stop [--mine|--all]
+
+Stops daemons. Without arguments, every daemon this install started for that repository · --mine is every one this install started, whatever the repository · --all is every running one.
+Don't restart the daemon by hand — only when stale's remedy says so.

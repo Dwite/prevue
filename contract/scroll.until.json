@@ -1,0 +1,115 @@
+{
+  "status": 200,
+  "schema": {
+    "appeared": [
+      "empty"
+    ],
+    "by": "string",
+    "compile": "null",
+    "container": {
+      "at": "null",
+      "axis": "string",
+      "box": [
+        "number"
+      ]
+    },
+    "disappeared": [
+      "empty"
+    ],
+    "failure": "null",
+    "found": {
+      "at": "string",
+      "box": [
+        "number"
+      ],
+      "visible": "number"
+    },
+    "frames": "number",
+    "freshLoader": "boolean",
+    "height": "number",
+    "image": "string",
+    "imageUrl": "string",
+    "message": "null",
+    "moved": "boolean",
+    "ok": "boolean",
+    "passed": [
+      "empty"
+    ],
+    "phases": {},
+    "preview": {
+      "file": "string",
+      "fqn": "string",
+      "index": "number",
+      "methodParams": [
+        "empty"
+      ],
+      "params": {},
+      "previewId": "string"
+    },
+    "renderMs": "number",
+    "settled": "boolean",
+    "stale": {},
+    "status": "string",
+    "taskMs": "number",
+    "totalMs": "number",
+    "tree": "string",
+    "treeUrl": "string",
+    "warnings": [
+      "empty"
+    ],
+    "width": "number"
+  },
+  "example": {
+    "ok": true,
+    "warnings": [],
+    "preview": {
+      "fqn": "demo.CardsKt.Card1",
+      "previewId": "Card1",
+      "params": {},
+      "file": "<repo>/app/src/main/kotlin/demo/Cards.kt",
+      "index": 1,
+      "methodParams": []
+    },
+    "image": "<repo>/out/Card1-0.png",
+    "tree": "<repo>/out/Card1-0.viewinfo.json",
+    "width": 100,
+    "height": 100,
+    "taskMs": 0,
+    "renderMs": 0,
+    "status": "SUCCESS",
+    "failure": null,
+    "message": null,
+    "freshLoader": false,
+    "phases": {},
+    "compile": null,
+    "totalMs": 0,
+    "by": "cli",
+    "imageUrl": "/Card1-0.png?t=<t>",
+    "treeUrl": "/Card1-0.viewinfo.json?t=<t>",
+    "frames": 7,
+    "settled": true,
+    "stale": {},
+    "moved": false,
+    "container": {
+      "at": null,
+      "box": [
+        0,
+        0,
+        1080
+      ],
+      "axis": "vertical"
+    },
+    "appeared": [],
+    "disappeared": [],
+    "passed": [],
+    "found": {
+      "box": [
+        0,
+        500,
+        100
+      ],
+      "visible": 1,
+      "at": "Cards.kt:4"
+    }
+  }
+}

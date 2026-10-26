@@ -1,0 +1,9 @@
+prevue selection [--ref]
+
+Where the person last pointed in the viewer (⌥+click · capsule).
+  --ref      one line, @<absolute path>#L<line>
+  default    node name · file:line · userChain · chain · that preview's PNG
+
+userChain is the ancestor chain with only the composables user code called (NewsResourceCard › Card › Column › Row).
+chain is the original with every theme · Compose internal node, so it is long.
+Exit 1 when nothing was pointed at — don't guess or edit; ask the person to point at that part and wait.

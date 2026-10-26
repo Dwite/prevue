@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>뷰어 구조 시안</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="draft.css">
+<style>
+  main { max-width: 720px; padding: var(--space-32) var(--space-24); }
+  ol { padding-left: var(--space-24); }
+  li { margin-bottom: var(--space-8); }
+  li span { color: var(--on-surface-variant); font: var(--type-label-small); }
+  a { color: var(--on-surface); }
+</style>
+</head>
+<body>
+<main>
+  <h1>뷰어 구조 시안</h1>
+  <p>기능과 동작은 그대로 두고 화면마다 무엇이 어디에 놓이는가만 정한다(D-94). 한 화면씩 확정한다. 값은 <code>viewer/tokens.css</code>의 역할 이름만 쓴다.</p>
+  <ol>
+    <li><a href="header.html">헤더와 탭 줄</a> <span>확정 — 안 C(파일 레일) · 돋보기 없음</span></li>
+    <li><a href="board.html">보드</a> <span>확정 — 안 A(흐르는 묶음)</span></li>
+    <li><a href="workspace.html">작업 공간</a> <span>확정 — 안 C(오른쪽 패널)</span></li>
+    <li><a href="panel.html">오른쪽 패널</a> <span>확정 — 안 1(목록 + 커스텀 슬라이더), 숫자를 누르면 커스텀</span></li>
+    <li><a href="devices.html">기기 · 프리셋 고르기</a> <span>확정 — 안 1(한 목록, Android · iPhone 두 그룹), 기기 10</span></li>
+    
+    <li><a href="quickopen.html">빠른 열기와 시작 화면</a> <span>확정 — 안 1(가운데 팔레트)</span></li>
+    <li><a href="layers.html">떠 있는 층</a> <span>확정 — 안 3(가리킨 박스 꼬리표)</span></li>
+    <li><a href="prepare.html">준비 화면</a> <span>확정 — 안 1 + 차분한 그림 + 헤더 줄</span></li>
+    <li><a href="handoff.html">준비 → 보드 전환</a> <span>확정 — 안 3(떠오르기)</span></li>
+  </ol>
+</main>
+</body>
+</html>

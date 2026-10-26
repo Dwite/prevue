@@ -1,0 +1,5 @@
+prevue open [--lang <code>]
+
+Opens the viewer in the browser again (when the person closed the tab). Doesn't restart the daemon.
+opened:false means this shell can't open a browser — give the viewer address to the person as a link.
+--lang is the viewer language (the conversation's language) — it goes on the opened address and on viewer.

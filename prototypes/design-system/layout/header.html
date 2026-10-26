@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 시안 — 헤더와 탭 줄</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="draft.css">
+<style>
+  /* 안 A — 두 줄. 첫 줄은 어느 프로젝트 · 무슨 일, 둘째 줄은 열린 파일 */
+  .a .r1 { display: flex; align-items: center; gap: var(--space-12); height: 52px; padding: 0 var(--space-16); }
+  .a .lock { display: flex; align-items: center; gap: var(--space-8); min-width: 0; flex: 0 1 auto; }
+  .a .lock .t { display: grid; min-width: 0; }
+  .a .grow { flex: 1; }
+  .a .tools { display: flex; align-items: center; gap: var(--space-4); }
+  .a .r2 { display: flex; align-items: center; gap: var(--space-2); height: 40px; padding: 0 var(--space-12); border-bottom: 1px solid var(--outline-variant); overflow: hidden; }
+  @container (max-width: 639px) {
+    .a .brand span, .a .sub .pj:first-child, .a .sub .rest { display: none; }
+    .a .pill.ok .pt { display: none; }
+    .a .pill.busy .pt { max-width: 96px; overflow: hidden; text-overflow: ellipsis; }
+    .a .r1 { padding: 0 var(--space-12); gap: var(--space-8); }
+  }
+
+  /* 안 B — 한 줄. 탭이 헤더 안으로, 부제는 앱 이름에서 여는 팝오버로 */
+  .b .r1 { display: flex; align-items: center; gap: var(--space-8); height: 48px; padding: 0 var(--space-12); border-bottom: 1px solid var(--outline-variant); }
+  .b .appbtn { display: inline-flex; align-items: center; gap: var(--space-8); height: var(--control-xlarge); padding: 0 var(--space-6) 0 var(--space-4);
+    border-radius: var(--corner-medium); flex: none; }
+  .b .appbtn:hover { background: var(--state-hover); }
+  .b .appbtn .ic { color: var(--on-surface-variant); }
+  .b .strip { display: flex; align-items: center; gap: var(--space-2); flex: 1; min-width: 0; overflow: hidden; }
+  .b .tools { display: flex; align-items: center; gap: var(--space-4); flex: none; }
+  .b .r2 { display: none; }
+  .b .pop { position: absolute; margin-top: var(--space-4); padding: var(--space-12); width: 300px; z-index: 2;
+    background: var(--surface-container); border-radius: var(--corner-large); box-shadow: var(--elevation-3); font: var(--type-body-small); }
+  .b .pop .k { color: var(--on-surface-variant); font: var(--type-label-small); }
+  .b .pop .v { margin-bottom: var(--space-8); font: var(--type-code-small); }
+  .b .pop .acts { display: flex; gap: var(--space-4); flex-wrap: wrap; }
+  .b .pop .acts span { padding: var(--space-4) var(--space-8); border: 1px solid var(--outline); border-radius: var(--corner-medium); font: var(--type-label-medium); }
+  .b .anchor { position: relative; }
+  @container (max-width: 639px) {
+    .b .r1 .strip, .b .r1 .add { display: none; }
+    .b .r1 { border-bottom: 0; }
+    .b .grow { flex: 1; }
+    .b .r2 { display: flex; align-items: center; gap: var(--space-2); height: 40px; padding: 0 var(--space-12); border-bottom: 1px solid var(--outline-variant); overflow: hidden; }
+    .b .pill.ok .pt { display: none; }
+    .b .pill.busy .pt { max-width: 96px; overflow: hidden; text-overflow: ellipsis; }
+    .b .appbtn .app-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+  }
+  @container (min-width: 640px) { .b .grow { display: none; } }
+
+  /* 안 C — 파일 레일. 헤더는 프로젝트 한 줄, 열린 파일은 왼쪽 세로 목록 */
+  .c .r1 { display: flex; align-items: center; gap: var(--space-12); height: 52px; padding: 0 var(--space-16); border-bottom: 1px solid var(--outline-variant); }
+  .c .lock { display: flex; align-items: center; gap: var(--space-8); min-width: 0; flex: 0 1 auto; }
+  .c .lock .t { display: grid; min-width: 0; }
+  .c .grow { flex: 1; }
+  .c .tools { display: flex; align-items: center; gap: var(--space-4); }
+  .c .body { display: flex; height: calc(100% - 52px); }
+  .c .rail { width: 200px; flex: none; padding: var(--space-12) var(--space-8); border-right: 1px solid var(--outline-variant); display: flex; flex-direction: column; gap: var(--space-2); }
+  .c .rail h4 { margin: 0 var(--space-8) var(--space-6); color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .c .rail .tab { max-width: none; width: 100%; }
+  .c .rail .tab .ic { color: var(--on-surface-variant); }
+  .c .rail .tab .name { flex: 1; }
+  .c .rail .open { margin-top: var(--space-4); color: var(--on-surface-variant); }
+  .c .main { flex: 1; min-width: 0; }
+  .c .picker { display: none; }
+  @container (max-width: 639px) {
+    .c .rail, .c .brand span, .c .sub .pj:first-child, .c .sub .rest { display: none; }
+    .c .r1 { padding: 0 var(--space-12); gap: var(--space-8); }
+    .c .pill.ok .pt { display: none; }
+    .c .pill.busy .pt { max-width: 96px; overflow: hidden; text-overflow: ellipsis; }
+    .c .picker { display: flex; align-items: center; gap: var(--space-6); height: 40px; padding: 0 var(--space-12); border-bottom: 1px solid var(--outline-variant); font: var(--type-label-large); }
+    .c .picker .cnt { color: var(--on-surface-variant); font: var(--type-label-medium); }
+    .c .body { height: calc(100% - 92px); }
+  }
+
+  /* 확정 A 위의 중복 정리 — + 와 돋보기가 같은 빠른 열기를 연다 */
+  .dd .hdr .r1 .tools .search-wide { display: inline-flex; align-items: center; gap: var(--space-8); height: var(--control-large); padding: 0 var(--space-8) 0 var(--space-12);
+    border: 1px solid var(--outline); border-radius: var(--corner-medium); background: transparent; color: var(--on-surface-variant); font: var(--type-label-large); white-space: nowrap; }
+  .dd .hdr .r1 .tools .search-wide kbd { padding: 0 var(--space-4); border: 1px solid var(--outline-variant); border-radius: var(--corner-small); font: var(--type-code-small); }
+  @container (max-width: 639px) {
+    .dd .hdr .r1 .tools .search-wide { width: var(--control-large); padding: 0; justify-content: center; border: 0; }
+    .dd .hdr .r1 .tools .search-wide span, .dd .hdr .r1 .tools .search-wide kbd { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page-top">
+  <h1 id="h1"></h1><span class="note" id="note"></span><span class="grow"></span>
+  <a href="./">← 시안 목록</a><a id="lang" href="#"></a>
+</div>
+<div id="root"></div>
+<script src="draft.js"></script>
+<script>
+  const T = {
+    ko: {
+      h1: "헤더와 탭 줄", note: "화면 1/7 · 동작은 그대로, 자리만 다르다 · 아래 보드는 배경일 뿐이다",
+      A: "안 A — 두 줄 (지금 골격을 토큰으로)",
+      Ad: "<b>눈이 가는 순서</b> 앱 이름 → 탭 → 상태. 프로젝트 줄과 파일 줄이 갈려 무엇이 어디인지 가장 빨리 읽힌다. <b>세로 92px</b>를 쓴다. <b>영어</b> 진행 문구가 길어도 오른쪽 끝이라 탭과 다투지 않는다.",
+      B: "안 B — 한 줄 (탭이 헤더 안으로)",
+      Bd: "<b>눈이 가는 순서</b> 탭 → 앱 이름. 보드가 <b>40px 위로</b> 올라간다(세로 48px). 폴더 ⑂ 브랜치 · 모듈 · 변형은 앱 이름 ▾ 팝오버로 들어가 <b>늘 보이지 않는다</b>(D-60의 부제를 뒤집는다). <b>영어</b> 진행 문구가 길면 탭 자리가 그만큼 줄어 탭이 먼저 깎인다.",
+      C: "안 C — 파일 레일 (열린 파일을 왼쪽 세로 목록으로)",
+      Cd: "<b>눈이 가는 순서</b> 레일 → 보드. 긴 파일 이름이 잘리지 않고 탭 10개도 한눈에 보인다. 대신 보드 폭이 <b>200px</b> 줄어 배율(D-62)이 더 자주 내려간다. 탭 폭 규칙(88~240px · 긴 탭부터 깎기)이 필요 없어져 <b>동작 하나를 다시 열어야 한다</b>.",
+      pop: "팝오버 열린 모습",
+      D1: "중복 정리 1 — + 만 남긴다",
+      D1d: "<b>돋보기를 뺀다.</b> 빠른 열기의 입구는 탭 줄 끝 <b>+</b>와 단축키 <b>/ · ⌘K</b>이다. 파일을 여는 것은 곧 탭을 하나 더 여는 것이라 + 자리가 뜻과 맞다. 돋보기는 작업 공간에서 이미 물러나고, 탭 0개면 시작 화면이 필드를 펼치므로 돋보기만 있던 자리가 없다. <b>대가</b> 오른쪽 위에서 검색을 찾는 습관에는 덜 보인다.",
+      D2: "중복 정리 2 — 돋보기만 남긴다",
+      D2d: "<b>+를 뺀다.</b> 입구는 오른쪽 위 돋보기 하나(지금 D-56의 첫 모양). <b>대가</b> 탭 줄 끝에서 \"여기에 더 열 수 있다\"는 신호가 사라지고, 탭이 하나뿐일 때 탭 줄이 왜 있는지 덜 읽힌다.",
+      D3: "중복 정리 3 — 둘을 합쳐 검색 칸 하나",
+      D3d: "<b>둘 다 빼고</b> 첫 줄 오른쪽에 <b>\"파일 열기 ⌘K\"</b> 칸 하나를 둔다. 단축키가 늘 보여 발견성이 가장 높다(D-56이 지키려던 것). <b>영어</b> \"Open file ⌘K\"로 약간 길다. <b>대가</b> 첫 줄에 테두리 칸이 하나 늘어 상태 알약과 나란히 선다.",
+    },
+    en: {
+      h1: "Header and tab bar", note: "Screen 1/7 · same behavior, different placement · the board below is only a backdrop",
+      A: "Option A — two rows (today's skeleton on tokens)",
+      Ad: "<b>Eye order</b> app name → tabs → status. Project row and file row are separate. <b>92px tall</b>. <b>English</b> long progress text sits at the far right and never competes with tabs.",
+      B: "Option B — one row (tabs inside the header)",
+      Bd: "<b>Eye order</b> tabs → app name. The board moves <b>40px up</b> (48px tall). Folder ⑂ branch · module · variant move into an app-name ▾ popover and are <b>no longer always visible</b> (reverses D-60's subtitle). <b>English</b> long progress text eats tab space, so tabs shrink first.",
+      C: "Option C — file rail (open files as a left list)",
+      Cd: "<b>Eye order</b> rail → board. Long file names never truncate and all 10 tabs fit. The board loses <b>200px</b>, so board scale (D-62) drops more often. The tab-width rule (88–240px, trim longest first) goes away, so <b>one behavior has to be reopened</b>.",
+      pop: "popover open",
+      D1: "De-dupe 1 — keep + only",
+      D1d: "<b>Drop the magnifier.</b> Quick open is reached by <b>+</b> at the end of the tab bar and <b>/ · ⌘K</b>. Opening a file means opening a tab, so + sits where it means. The magnifier already hides in the workspace, and with zero tabs the start screen shows the field. <b>Cost</b> less visible to people who look top-right for search.",
+      D2: "De-dupe 2 — keep the magnifier only",
+      D2d: "<b>Drop +.</b> One entry at the top right (D-56's original shape). <b>Cost</b> the tab bar loses its \"you can open more here\" cue.",
+      D3: "De-dupe 3 — merge into one search field",
+      D3d: "<b>Drop both</b> and put one <b>\"Open file ⌘K\"</b> field at the right of row 1. The shortcut is always visible, best for discovery (what D-56 protected). <b>English</b> \"Open file ⌘K\" is a bit longer. <b>Cost</b> one more bordered box next to the status pill.",
+    },
+  }[LANG];
+
+  const A = state => `<div class="a">
+    <div class="r1"><span class="brand">${ICON.glyph}<span>Prevue</span></span><span class="sep"></span>
+      <div class="lock"><span class="tile">${APP.tile}</span><div class="t"><div class="app-name">${APP.name}</div><div class="sub">${subHtml()}</div></div></div>
+      <span class="grow"></span><div class="tools">${pillHtml(state)}<button class="icon-btn">${ICON.search}</button><button class="icon-btn">?</button></div></div>
+    <div class="r2">${tabsHtml()}<button class="icon-btn add">${ICON.plus}</button></div></div>${boardHtml()}`;
+
+  const B = (state, size) => `<div class="b">
+    <div class="r1"><span class="brand">${ICON.glyph}</span>
+      <span class="anchor"><span class="appbtn"><span class="tile">${APP.tile}</span><span class="app-name">${APP.name}</span>${ICON.chevron}</span>
+        ${state === "busy" && size === "wide" ? `<div class="pop"><div class="k">${LANG === "ko" ? "폴더" : "Folder"}</div><div class="v">~/src/${APP.dir}</div>
+          <div class="k">${LANG === "ko" ? "브랜치 · 모듈 · 변형" : "Branch · module · variant"}</div><div class="v">⑂ ${APP.branch} · ${APP.rest}</div>
+          <div class="acts"><span>${t_("copyPath")}</span><span>${t_("reveal")}</span><span>${t_("copyBranch")}</span></div></div>` : ""}</span>
+      <span class="sep"></span><div class="strip">${tabsHtml()}</div><button class="icon-btn add">${ICON.plus}</button><span class="grow"></span>
+      <div class="tools">${pillHtml(state)}<button class="icon-btn">${ICON.search}</button><button class="icon-btn">?</button></div></div>
+    <div class="r2">${tabsHtml()}<button class="icon-btn">${ICON.plus}</button></div></div>${boardHtml()}`;
+
+  const C = state => shellC(state, boardHtml());
+
+  document.getElementById("h1").textContent = T.h1;
+  document.getElementById("note").textContent = T.note;
+  document.title = `${LANG === "ko" ? "구조 시안" : "Layout draft"} — ${T.h1}`;
+  const dd = k => state => {
+    let h = headerA(state);
+    if (k === "D1") h = h.replace(`<button class="icon-btn">${ICON.search}</button>`, "");
+    if (k === "D2") h = h.replace(`<button class="icon-btn add">${ICON.plus}</button>`, "");
+    if (k === "D3") h = h.replace(`<button class="icon-btn add">${ICON.plus}</button>`, "")
+      .replace(`<button class="icon-btn">${ICON.search}</button>`, `<button class="search-wide">${ICON.search}<span>${t_("openFile")}</span><kbd>⌘K</kbd></button>`);
+    return `<div class="dd">${h}</div>${boardHtml()}`;
+  };
+  document.getElementById("root").innerHTML = ["D1", "D2", "D3"].map(k =>
+    `<section class="variant" id="${k}"><h2>${T[k]}</h2><p class="diff">${T[k + "d"]}</p>${frames(dd(k))}</section>`).join("")
+    + [["A", A], ["B", B], ["C", C]].map(([k, f]) =>
+    `<section class="variant" id="${k}"><h2>${T[k]}${k === "C" ? (LANG === "ko" ? " ✓ 확정 (돋보기 없이)" : " ✓ confirmed (without the magnifier)") : ""}</h2><p class="diff">${T[k + "d"]}</p>${frames(f)}</section>`).join("");
+  langButton();
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+The build settings used on this branch have changed, so they need to be read again once. It's already built, so it'll be quick, and no project files are changed.

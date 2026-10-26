@@ -1,0 +1,23 @@
+{
+  "status": 200,
+  "schema": {
+    "message": {
+      "a": {
+        "file": "string",
+        "line": "number"
+      },
+      "t": "string"
+    },
+    "ok": "boolean"
+  },
+  "example": {
+    "ok": false,
+    "message": {
+      "t": "point.unindexed",
+      "a": {
+        "file": "Nope.kt",
+        "line": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+prevue board
+
+The board's state — each card's generation, success, staleness and PNG. It takes no file, so run it inside the target repository or show first.

@@ -1,0 +1,19 @@
+{
+  "status": 422,
+  "schema": {
+    "failure": "string",
+    "message": "string",
+    "ok": "boolean",
+    "stale": {},
+    "tab": "string",
+    "waitedMs": "number"
+  },
+  "example": {
+    "ok": false,
+    "failure": "TIMEOUT",
+    "message": "<took> 안에 컴파일이 이 저장을 읽지 않았다 — 저장이 감시에 안 잡혔으면 reload 한다",
+    "waitedMs": 0,
+    "stale": {},
+    "tab": "<repo>/app/src/main/kotlin/demo/Cards.kt"
+  }
+}

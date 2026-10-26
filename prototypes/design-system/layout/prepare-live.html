@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>준비 화면 시제품</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="../../../viewer/preparation.css">
+<style>
+  /* 실제 준비 화면(preparation-scene.js · preparation.css) 위에 배치만 덧입힌다. ?layout=1|3 · ?fail=1 · ?theme=dark */
+  body { margin: 0; background: var(--surface); }
+
+  /* 두 안 공통 — 지금 하는 일 한 줄과 지난 시간 */
+  #preparation .now { margin-top: var(--space-8); color: var(--on-surface-variant); font: var(--type-body-small); }
+  #preparation .now .clock { font: var(--type-code-small); }
+
+  /* 안 1 — 제목 아래 네 칸 막대. 지금 칸은 단계 안에서 차오른다 */
+  [data-layout="1"] #preparation .bar { display: flex; gap: var(--space-6); justify-content: center; margin-top: var(--space-16); }
+  [data-layout="1"] #preparation .bar i { position: relative; width: 56px; height: 4px; border-radius: var(--corner-full); background: var(--outline-variant); overflow: hidden; }
+  [data-layout="1"] #preparation .bar i::after { content: ""; position: absolute; inset: 0; transform-origin: left; transform: scaleX(var(--fill, 0)); background: var(--on-surface-variant); }
+  [data-layout="1"] #preparation .bar i.bad::after { background: var(--error); transform: none; }
+  [data-layout="1"] #preparation .steps { display: none; }
+
+  /* 안 3 — 글은 왼쪽 단계 목록, 그림은 오른쪽 */
+  [data-layout="3"] #preparation .scene { left: auto; right: 0; width: 58%; }
+  [data-layout="3"] #preparation .loading-copy { left: max(64px, 8vw) !important; top: 50% !important; transform: translateY(-50%) !important; width: min(480px, 36vw); text-align: left; }
+  [data-layout="3"] #preparation .loading-copy h1 { font: var(--type-title-large); }
+  [data-layout="3"] #preparation .failure-help { margin-left: 0; }
+  /* 안 3은 원인을 실패한 단계 줄이 말한다 — 제목 아래 한 줄과 겹치지 않게 */
+  [data-layout="3"] #preparation[data-screen="failure"] #detail { display: none; }
+  [data-layout="3"] #preparation .bar, [data-layout="3"] #preparation .now { display: none; }
+  #preparation .steps { list-style: none; margin: var(--space-24) 0 0; padding: 0; display: grid; gap: var(--space-16); }
+  #preparation .steps li { display: grid; grid-template-columns: 20px 1fr auto; column-gap: var(--space-12); align-items: center; color: var(--on-surface-disabled); font: var(--type-body-medium);
+    transition: color var(--duration-medium2) var(--easing-standard); }
+  #preparation .steps .m { width: 20px; height: 20px; display: grid; place-items: center; border-radius: var(--corner-full); border: 1.5px solid var(--outline-variant); font: var(--type-label-small); }
+  #preparation .steps .clock { color: var(--on-surface-variant); font: var(--type-code-small); }
+  #preparation .steps .sub { grid-column: 2 / 4; color: var(--on-surface-variant); font: var(--type-body-small); max-height: 0; overflow: hidden; opacity: 0;
+    transition: max-height var(--duration-medium2) var(--easing-standard), opacity var(--duration-medium2) var(--easing-standard); }
+  #preparation .steps li.done { color: var(--on-surface); }
+  #preparation .steps li.done .m { border-color: var(--success); color: var(--success); }
+  #preparation .steps li.cur { color: var(--on-surface); font-weight: var(--weight-semibold); }
+  #preparation .steps li.cur .m { border-color: var(--live); border-top-color: transparent; animation: spin var(--duration-extra-long4) linear infinite; }
+  #preparation .steps li:is(.cur, .bad) .sub { max-height: 4em; opacity: 1; font-weight: var(--weight-regular); }
+  #preparation .steps li.bad { color: var(--error); }
+  #preparation .steps li.bad .m { border-color: var(--error); background: var(--error); color: var(--on-error); }
+  @keyframes spin { to { transform: rotate(1turn); } }
+  @media (prefers-reduced-motion: reduce) { #preparation .steps li.cur .m { animation: none; } }
+
+  /* 차분한 그림(?calm=1) — 조각이 모이는 움직임은 그대로 두고 색만 크롬과 같은 무채색 단계로. 빛 띠는 걷는다 */
+  html[data-calm] #preparation[data-palette] {
+    --art-shape: var(--outline-variant); --art-shape-edge: var(--outline-variant); --art-panel: var(--surface-container); --art-ink: var(--on-surface-variant);
+    --art-line: var(--outline-variant); --art-solid-top: var(--surface-container); --art-solid-bottom: var(--surface-container-high); --art-solid-glow: transparent;
+    --art-solid-shade: var(--state-hover); --art-shape-shadow: var(--state-hover); --art-floor: var(--state-hover); --art-outline-shade: var(--state-hover); --art-panel-glow: transparent; --art-shine: transparent;
+    --art-action-a: var(--surface-container-high); --art-action-b: var(--outline-variant); --art-tag-a: var(--surface-container-high); --art-tag-b: var(--outline-variant);
+    --art-bg: var(--surface-container-high); --art-fill-a: var(--outline-variant); --art-fill-b: var(--surface-container-high); --art-accent: var(--outline); --art-dot: var(--outline); --art-pill: var(--outline-variant);
+    --art-tag-surface: var(--surface-container-high); --art-edge-a: var(--outline-variant); --art-edge-b: var(--surface-container); --art-edge-c: var(--outline-variant);
+  }
+  html[data-calm] #preparation .ambient { display: none; }
+  /* 헤더 첫 줄(?frame=1) — 다른 화면과 같은 앱으로 읽히게 워드마크 한 줄을 둔다. 준비 중에는 앱 이름 · 상태를 아직 모른다 */
+  .prep-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 101; display: flex; align-items: center; gap: var(--space-12); height: 52px; padding: 0 var(--space-16);
+    border-bottom: 1px solid var(--outline-variant); background: var(--surface); color: var(--on-surface-variant); font: var(--type-label-large); }
+  .prep-bar svg { width: 18px; height: 18px; }
+  .prep-bar .file { color: var(--on-surface); }
+  html[data-frame] #preparation { top: 53px; }
+</style>
+</head>
+<body>
+<script type="module">
+  import { createScene } from "../../../viewer/js/preparation-scene.js";
+
+  const q = new URLSearchParams(location.search);
+  const layout = q.get("layout") === "3" ? "3" : "1", failing = q.get("fail") === "1";
+  document.documentElement.dataset.layout = layout;
+  if (q.get("calm") === "1") document.documentElement.dataset.calm = "";
+  if (q.get("frame") === "1") {
+    document.documentElement.dataset.frame = "";
+    const bar = document.createElement("div"); bar.className = "prep-bar";
+    bar.innerHTML = `<svg viewBox="0 0 240 240" aria-hidden="true"><polygon points="120,40 189.3,80 120,120 50.7,80" fill="currentColor"/><polygon points="189.3,80 189.3,160 120,200 120,120" fill="currentColor" opacity=".62"/><polygon points="50.7,80 120,120 120,200 50.7,160" fill="currentColor" opacity=".34"/><path d="M14 44V14H44M14 196V226H44M226 44V14H196M226 196V226H196" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/></svg>Prevue`;
+    document.body.prepend(bar);
+  }
+  if (q.get("theme")) document.documentElement.dataset.theme = q.get("theme");
+  const en = q.get("lang") === "en";
+  // 화면이 아는 것은 단계 · 시작 시각 · 파일 · 실패 원인뿐이다 — 그 안에서만 말한다. 영어는 길이 확인용 임시 문구
+  const S = en
+    ? { steps: ["Preparing the project", "Starting the preview environment", "Drawing the first preview"],
+        sub: ["Reading the build setup with Gradle (once per module)", "Starting the preview engine", "Drawing the first preview of MainActivity.kt"],
+        why: "Gradle dump failed: could not resolve :app debugRuntimeClasspath", sec: s => `${s}s` }
+    : { steps: ["프로젝트를 준비하고 있어요", "프리뷰 환경을 시작하고 있어요", "첫 프리뷰를 그리고 있어요"],
+        sub: ["Gradle로 빌드 설정을 읽어요 — 이 모듈은 처음 한 번만", "프리뷰 엔진을 띄우고 있어요", "MainActivity.kt의 첫 프리뷰를 그리고 있어요"],
+        why: "Gradle 덤프 실패 — :app 의 debugRuntimeClasspath 를 풀지 못했습니다", sec: s => `${s}초` };
+  // 시간표(ms) — 실제 준비의 단계 순서와 같고 길이만 시안용으로 줄였다
+  const PHASES = ["project", "environment", "render"], AT = [0, 3500, 7000, 10000], HOLD = 4000, FAIL_AT = 5000;
+
+  let scene, started, timers = [], raf = 0;
+  function extras() {
+    const copy = scene.host.querySelector(".loading-copy");
+    const now = document.createElement("div"); now.className = "now";
+    const bar = document.createElement("div"); bar.className = "bar"; bar.innerHTML = "<i></i>".repeat(4);
+    const steps = document.createElement("ol"); steps.className = "steps";
+    steps.innerHTML = S.steps.map(t => `<li><span class="m"></span><span>${t}</span><span class="clock"></span><span class="sub"></span></li>`).join("");
+    copy.querySelector("#detail").after(now, bar, steps);
+  }
+  function paint() {
+    const t = Math.min(performance.now() - started, failing ? FAIL_AT : Infinity);
+    const ph = Math.min(AT.filter(a => a <= t).length - 1, 3), failed = failing && t >= FAIL_AT, sec = Math.floor(t / 1000);
+    const host = scene.host;
+    [...host.querySelectorAll(".bar i")].forEach((i, n) => {
+      const f = n < ph ? 1 : n === ph ? (ph === 3 ? 1 : Math.min(1, (t - AT[n]) / (AT[n + 1] - AT[n]))) : 0;
+      i.style.setProperty("--fill", f); i.classList.toggle("bad", failed && n === ph);
+    });
+    const now = host.querySelector(".now");
+    now.innerHTML = failed || ph === 3 ? "" : `${S.sub[ph]} · <span class="clock">${S.sec(sec)}</span>`;
+    [...host.querySelectorAll(".steps li")].forEach((li, n) => {
+      const cls = failed && n === ph ? "bad" : n < ph ? "done" : n === ph ? "cur" : "";
+      li.className = cls;
+      li.querySelector(".m").textContent = cls === "done" ? "✓" : cls === "bad" ? "!" : "";
+      li.querySelector(".sub").textContent = cls === "bad" ? S.why : cls === "cur" ? S.sub[n] : "";
+      li.querySelector(".clock").textContent = cls === "cur" ? S.sec(sec) : "";
+    });
+    if (!failed) raf = requestAnimationFrame(paint);
+  }
+  async function run() {
+    timers.forEach(clearTimeout); cancelAnimationFrame(raf); scene?.destroy();
+    started = performance.now();
+    scene = createScene({ phase: "project", started: Date.now(), file: "app/src/main/kotlin/com/example/pearl/MainActivity.kt", palette: "original" });
+    extras(); paint();
+    const later = (ms, f) => timers.push(setTimeout(f, ms));
+    if (failing) { later(AT[1], () => scene.setPhase("environment")); later(FAIL_AT, () => scene.fail(S.why)); return; }
+    PHASES.forEach((p, i) => later(AT[i], () => scene.setPhase(p)));
+    later(AT[3], async () => {
+      const img = new Image(); img.src = "../img/pearl/PearlListPreview.jpg"; await img.decode();
+      scene.image.src = img.src; scene.fit(360, 780); scene.reveal(false);
+      later(HOLD, run);
+    });
+  }
+  // 다시 재생 — 부모 페이지가 보낸다
+  addEventListener("message", e => { if (e.data === "replay") run(); });
+  run();
+</script>
+</body>
+</html>

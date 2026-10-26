@@ -1,0 +1,10 @@
+#!/bin/sh
+# 촬영 전용 — prevue 가 뷰어를 여는 open 을 가로채 cmux 브라우저 판으로 보낸다. 영상은 영어판이라 lang=en 으로 고정한다.
+case "${1:-}" in
+  http://127.0.0.1:*)
+    if [ -n "${PEARL_VIEWER_SURFACE:-}" ]; then
+      url=$(python3 -c 'import sys,urllib.parse as u; p=u.urlsplit(sys.argv[1]); q=[kv for kv in u.parse_qsl(p.query) if kv[0]!="lang"]+[("lang","en")]; print(u.urlunsplit(p._replace(query=u.urlencode(q))))' "$1")
+      exec cmux browser --surface "$PEARL_VIEWER_SURFACE" goto "$url"
+    fi ;;
+esac
+exec /usr/bin/open "$@"

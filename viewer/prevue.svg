@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="Prevue">
+<!-- Prevue 아이콘의 소형판(파비콘 · 22px 이하) — 큐브를 키우고 괄호를 짧고 굵게. 큰 판은 assets/icon.svg. -->
+<rect width="240" height="240" rx="54" fill="#0E1B2A"/><polygon points="120,48 182.4,84 120,120 57.6,84" fill="#CFE3FF"/><polygon points="182.4,84 182.4,156 120,192 120,120" fill="#CFE3FF" opacity=".62"/><polygon points="57.6,84 120,120 120,192 57.6,156" fill="#CFE3FF" opacity=".34"/><path d="M28 54V28H54M28 186V212H54M212 54V28H186M212 186V212H186" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="234" height="234" rx="51" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="6"/>
+</svg>

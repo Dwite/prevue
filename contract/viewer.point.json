@@ -1,0 +1,62 @@
+{
+  "status": 200,
+  "schema": {
+    "at": "string",
+    "bounds": "null",
+    "by": "string",
+    "chain": [
+      "string"
+    ],
+    "file": "string",
+    "image": "string",
+    "interactive": "boolean",
+    "line": "number",
+    "node": "string",
+    "ok": "boolean",
+    "preview": {
+      "file": "string",
+      "fqn": "string",
+      "index": "number",
+      "methodParams": [
+        "empty"
+      ],
+      "params": {},
+      "previewId": "string"
+    },
+    "ref": "string",
+    "tree": "string",
+    "userChain": [
+      "string"
+    ]
+  },
+  "example": {
+    "ok": true,
+    "ref": "@<repo>/app/src/main/kotlin/demo/Cards.kt#L3",
+    "file": "<repo>/app/src/main/kotlin/demo/Cards.kt",
+    "line": 3,
+    "node": "Text",
+    "chain": [
+      "Box",
+      "Layout",
+      "Text"
+    ],
+    "userChain": [
+      "Box",
+      "Text"
+    ],
+    "bounds": null,
+    "preview": {
+      "fqn": "demo.CardsKt.Card1",
+      "previewId": "Card1",
+      "params": {},
+      "file": "<repo>/app/src/main/kotlin/demo/Cards.kt",
+      "index": 1,
+      "methodParams": []
+    },
+    "image": "<repo>/out/Card1-0.png",
+    "tree": "<repo>/out/Card1-0.viewinfo.json",
+    "interactive": false,
+    "by": "viewer",
+    "at": "<at>"
+  }
+}

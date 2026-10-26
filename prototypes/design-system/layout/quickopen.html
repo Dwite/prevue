@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 시안 — 빠른 열기</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="draft.css">
+<style>
+  .win.wide { width: 1440px; height: 900px; position: relative; }
+  .frames .win { zoom: var(--draft-zoom, .55); }
+  .main { position: relative; }
+  .scrim { position: absolute; inset: 0; background: var(--scrim); }
+
+  /* 결과 줄 — 지금 한 줄 모양(→ 파일명 › 맞은 함수 · 모듈)을 그대로 쓴다 */
+  .field { display: flex; align-items: center; gap: var(--space-12); height: 56px; padding: 0 var(--space-16); border-bottom: 1px solid var(--outline-variant); color: var(--on-surface-variant); }
+  .field input { flex: 1; border: 0; background: transparent; color: var(--on-surface); font: var(--type-title-medium); outline: none; }
+  .field kbd { padding: 0 var(--space-6); border: 1px solid var(--outline-variant); border-radius: var(--corner-small); font: var(--type-code-small); }
+  .sec { padding: var(--space-8) var(--space-8) var(--space-4); }
+  .sec h6 { margin: var(--space-4) var(--space-8) var(--space-4); color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .r { display: flex; align-items: center; gap: var(--space-8); height: 36px; padding: 0 var(--space-8); border-radius: var(--corner-medium); color: var(--on-surface); font: var(--type-body-medium); white-space: nowrap; }
+  .r .ar { color: var(--on-surface-variant); }
+  .r b { font-weight: var(--weight-semibold); }
+  .r .fn { color: var(--on-surface-variant); font: var(--type-code-small); }
+  .r .md { margin-left: auto; color: var(--on-surface-variant); font: var(--type-code-small); }
+  .r.sel { background: var(--primary-container); }
+  .r .fn { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .r > span:nth-child(2) { flex: none; }
+  .r .md { flex: none; padding-left: var(--space-8); }
+  .hint { padding: var(--space-12) var(--space-16); border-top: 1px solid var(--outline-variant); color: var(--on-surface-variant); font: var(--type-body-small); display: flex; gap: var(--space-16); }
+  .hint code { font: var(--type-code-small); }
+
+  /* Q1 — 가운데 팔레트 */
+  .pal { position: absolute; left: 50%; top: 96px; width: 640px; transform: translateX(-50%); background: var(--surface-container); border-radius: var(--corner-large); box-shadow: var(--elevation-4); overflow: hidden; }
+  /* Q2 — 레일이 넓어지며 검색이 된다 */
+  .rail.wide { width: 420px; background: var(--surface-container); box-shadow: var(--elevation-3); position: absolute; left: 0; top: 52px; bottom: 0; z-index: 2; padding: 0; }
+  .rail.wide .field { height: 48px; }
+  .rail.wide .field input { font: var(--type-title-small); }
+  /* Q3 — 헤더 아래로 내려오는 시트(지금 골격) */
+  .sheet { position: absolute; left: 0; right: 0; top: 52px; background: var(--surface-container); border-bottom: 1px solid var(--outline-variant); box-shadow: var(--elevation-3); z-index: 2; }
+  .sheet .col { width: 720px; margin-left: 216px; }
+
+  /* 시작 화면 — 탭 0개 */
+  .start { position: absolute; inset: 0; display: grid; place-items: start center; padding-top: 120px; }
+  .start .box { width: 640px; background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--corner-large); overflow: hidden; }
+  .start .box.flat { background: transparent; border: 0; }
+  .start .lead { margin: 0 0 var(--space-16); text-align: center; color: var(--on-surface-variant); font: var(--type-body-medium); }
+  .rail .empty { margin: var(--space-8); color: var(--on-surface-disabled); font: var(--type-body-small); }
+</style>
+</head>
+<body>
+<div class="page-top">
+  <h1 id="h1"></h1><span class="note" id="note"></span><span class="grow"></span>
+  <a href="./">← 시안 목록</a><a id="lang" href="#"></a>
+</div>
+<div id="root"></div>
+<script src="draft.js"></script>
+<script>
+  const T = {
+    ko: {
+      h1: "빠른 열기와 시작 화면", note: "레일(헤더 안 C) 위 · 라이트는 빠른 열기를 연 모습(\"pearl\"), 다크는 탭 0개의 시작 화면 · 매칭 · 키보드 흐름 · 쉬는 동안 고른 줄 없음은 그대로",
+      Q1: "안 1 — 가운데 팔레트",
+      Q1d: "<b>눈이 가는 순서</b> 입력 → 결과. 화면 가운데 위에 떠서 뒤를 막(scrim)으로 가린다. 시작 화면은 같은 팔레트가 막 없이 본문에 놓인 모습이라 <b>두 모습이 같은 상자</b>다. D-56이 기각한 \"가운데 팔레트\"의 이유(헤더 검색창의 발견성)는 돋보기를 걷어 사라졌다 — 입구는 레일의 \"파일 열기 ⌘K\".",
+      Q2: "안 2 — 레일이 넓어지며 검색이 된다",
+      Q2d: "<b>눈이 가는 순서</b> 레일 → 입력 → 결과. 누른 자리(레일 아래 \"파일 열기\")에서 레일이 420px로 넓어지며 맨 위가 입력이 된다 — <b>입구와 결과가 같은 자리</b>다. 열린 파일과 열 파일이 한 기둥에 선다. 시작 화면은 레일이 늘 넓은 채로 열려 있다. 대가: 결과가 왼쪽에 몰려 넓은 창에서 가운데가 빈다.",
+      Q3: "안 3 — 헤더 아래 시트 (지금 골격)",
+      Q3d: "<b>눈이 가는 순서</b> 입력 → 결과. 지금처럼 헤더 아래로 화면 폭 시트가 내려오고 내용은 왼쪽 선에 선다(폭 최대 720). 지금 사용자 손버릇이 그대로다. 대가: 레일 위까지 덮어 열린 파일이 가려지고, 돋보기가 없어진 지금은 <b>시트가 어디서 내려오는지</b>(레일 아래 입구와 먼 위쪽) 덜 이어진다.",
+      ph: "프리뷰 파일 검색하기", recentChanged: "최근 바뀐", recentOpened: "최근 연", startLead: "열린 파일이 없습니다 — 파일을 골라 여세요", hintTerm: "또는 터미널에서", noTabs: "열린 파일 없음",
+      kOpen: "↵ 열기", kMove: "↑↓ 고르기", kClose: "esc 닫기",
+    },
+    en: {
+      h1: "Quick open and start screen", note: "On the rail (header option C) · light: quick open with \"pearl\" · dark: start screen with zero tabs · matching, keyboard flow and no selection at rest stay the same",
+      Q1: "Option 1 — centered palette",
+      Q1d: "<b>Eye order</b> input → results. Floats at the top center over a scrim. The start screen is the same palette placed in the body without a scrim, so <b>both are one box</b>. D-56 rejected a centered palette because the header search field was more discoverable; that field is gone now, and the entry is the rail's \"Open file ⌘K\".",
+      Q2: "Option 2 — the rail widens into search",
+      Q2d: "<b>Eye order</b> rail → input → results. From where you clicked (\"Open file\" under the rail), the rail widens to 420px and its top becomes the input: <b>entry and results in one place</b>. Open and to-open files share one column. The start screen keeps the rail wide. Cost: results cluster left, leaving the middle empty on wide windows.",
+      Q3: "Option 3 — sheet under the header (today's skeleton)",
+      Q3d: "<b>Eye order</b> input → results. As today, a full-width sheet drops under the header with content on a left line (max 720). Habits stay the same. Cost: it covers the rail, hiding open files, and with the magnifier gone <b>where the sheet comes from</b> (top) is far from the entry (bottom of the rail).",
+      ph: "Search preview files", recentChanged: "Recently changed", recentOpened: "Recently opened", startLead: "No open files. Pick a file to open", hintTerm: "or in the terminal", noTabs: "No open files",
+      kOpen: "↵ open", kMove: "↑↓ select", kClose: "esc close",
+    },
+  }[LANG];
+
+  const FILES = [["Pearl", "Previews", "PearlListPreview", "feature:pearl"], ["Pearl", "Screen", "", "feature:pearl"], ["Pearl", "Button", "", "core:designsystem"], ["Pearl", "App", "PearlAppPreview", "feature:pearl"]];
+  const RECENT = [["SearchScreen", "feature:search"], ["PearlPreviews", "feature:pearl"], ["ScrollPreviews", "feature:pearl"], ["AnimationPreviews", "feature:pearl"], ["DrinkCard", "core:ui"]];
+  const OPENED = [["PearlButton", "core:designsystem"], ["ShowcasePreviews", "feature:pearl"], ["SearchScreen", "feature:search"]];
+  const SEARCH = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>`;
+  const field = (q, big) => `<div class="field">${SEARCH}<input value="${q}" placeholder="${T.ph}"><kbd>esc</kbd></div>`;
+  const results = () => `<div class="sec">${FILES.map(([a, b, fn, m], i) => `<div class="r${i === 1 ? " sel" : ""}"><span class="ar">→</span><span><b>${a}</b>${b}.kt</span>${fn ? `<span class="fn">› ${fn}</span>` : ""}<span class="md">${m}</span></div>`).join("")}</div>
+    <div class="hint"><span>${T.kMove}</span><span>${T.kOpen}</span><span>${T.kClose}</span></div>`;
+  const empty = () => `<div class="sec"><h6>${T.recentChanged}</h6>${RECENT.map(([n, m]) => `<div class="r"><span class="ar">→</span><span>${n}.kt</span><span class="md">${m}</span></div>`).join("")}
+    <h6>${T.recentOpened}</h6>${OPENED.map(([n, m]) => `<div class="r"><span class="ar">→</span><span>${n}.kt</span><span class="md">${m}</span></div>`).join("")}</div>
+    <div class="hint"><span>${T.hintTerm} <code>prevue show &lt;파일&gt;</code></span></div>`;
+
+  // 빈 레일 — 탭 0개
+  const emptyRail = `<nav class="rail"><h4>${t_("openFiles")}</h4><p class="empty">${T.noTabs}</p><span class="rt open">${ICON.plus}<span class="name">${t_("openFile")}</span><kbd>⌘K</kbd></span></nav>`;
+  const shellEmpty = (state, content, rail = emptyRail) => shellC(state, "").replace(/<nav class="rail">[\s\S]*?<\/nav>/, rail).replace('<div class="main"></div>', `<div class="main">${content}</div>`);
+
+  const Q1 = state => state === "ok"
+    ? shellC(state, boardHtml()).replace('<div class="main">', '<div class="main"><div class="scrim"></div>') .replace(/<\/div><\/div><\/div>$/, `</div></div><div class="pal">${field("pearl")}${results()}</div></div>`)
+    : shellEmpty(state, `<div class="start"><div><p class="lead">${T.startLead}</p><div class="box">${field("")}${empty()}</div></div></div>`);
+  const Q2 = state => state === "ok"
+    ? shellC(state, boardHtml()).replace(/<nav class="rail">[\s\S]*?<\/nav>/, m => m + `<nav class="rail wide">${field("pearl")}${results()}</nav>`)
+    : shellEmpty(state, "", `<nav class="rail wide" style="position:static;box-shadow:none">${field("")}${empty()}</nav>`);
+  const Q3 = state => state === "ok"
+    ? shellC(state, boardHtml()).replace(/<\/div><\/div><\/div>$/, `</div></div><div class="sheet"><div class="col">${field("pearl")}${results()}</div></div></div>`)
+    : shellEmpty(state, `<div class="start"><div><p class="lead">${T.startLead}</p><div class="box flat">${field("")}${empty()}</div></div></div>`);
+
+  document.getElementById("h1").textContent = T.h1;
+  document.getElementById("note").textContent = T.note;
+  document.title = `${LANG === "ko" ? "구조 시안" : "Layout draft"} — ${T.h1}`;
+  if (new URLSearchParams(location.search).get("zoom") === "1") document.documentElement.style.setProperty("--draft-zoom", "1");
+  document.getElementById("root").innerHTML = [["Q1", Q1], ["Q2", Q2], ["Q3", Q3]].map(([k, f]) =>
+    `<section class="variant" id="${k}"><h2>${T[k]}${k === "Q1" ? (LANG === "ko" ? " ✓ 확정" : " ✓ confirmed") : ""}</h2><p class="diff">${T[k + "d"]}</p>${frames(f)}</section>`).join("");
+  langButton();
+</script>
+</body>
+</html>

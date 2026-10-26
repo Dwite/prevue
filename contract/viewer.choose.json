@@ -1,0 +1,55 @@
+{
+  "status": 200,
+  "schema": {
+    "at": "string",
+    "bounds": "null",
+    "by": "string",
+    "chain": [
+      "empty"
+    ],
+    "file": "string",
+    "image": "string",
+    "interactive": "boolean",
+    "line": "number",
+    "node": "null",
+    "ok": "boolean",
+    "preview": {
+      "file": "string",
+      "fqn": "string",
+      "index": "number",
+      "methodParams": [
+        "empty"
+      ],
+      "params": {},
+      "previewId": "string"
+    },
+    "ref": "string",
+    "tree": "string",
+    "userChain": [
+      "empty"
+    ]
+  },
+  "example": {
+    "ok": true,
+    "ref": "@<repo>/app/src/main/kotlin/a/Dup.kt#L1",
+    "file": "<repo>/app/src/main/kotlin/a/Dup.kt",
+    "line": 1,
+    "node": null,
+    "chain": [],
+    "userChain": [],
+    "bounds": null,
+    "preview": {
+      "fqn": "demo.CardsKt.Card0",
+      "previewId": "Card0",
+      "params": {},
+      "file": "<repo>/app/src/main/kotlin/demo/Cards.kt",
+      "index": 0,
+      "methodParams": []
+    },
+    "image": "<repo>/out/Card0-0.png",
+    "tree": "<repo>/out/Card0-0.viewinfo.json",
+    "interactive": false,
+    "by": "viewer",
+    "at": "<at>"
+  }
+}

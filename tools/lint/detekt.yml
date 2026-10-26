@@ -1,0 +1,44 @@
+config:
+  validation: true
+
+complexity:
+  active: true
+  LongMethod:
+    active: true
+    allowedLines: 60
+  LongParameterList:
+    active: true
+    allowedFunctionParameters: 6
+    allowedConstructorParameters: 8
+    ignoreDefaultParameters: false
+  CyclomaticComplexMethod:
+    active: true
+    allowedComplexity: 15
+  CognitiveComplexMethod:
+    active: true
+    allowedComplexity: 15
+  NestedBlockDepth:
+    active: true
+    allowedDepth: 4
+
+style:
+  active: true
+  MaxLineLength:
+    active: true
+    maxLineLength: 160
+    excludeCommentStatements: true
+    excludePackageStatements: true
+    excludeImportStatements: true
+  UnusedPrivateFunction:
+    active: true
+  UnusedPrivateProperty:
+    active: true
+  UnusedPrivateClass:
+    active: true
+  UnusedParameter:
+    active: true
+
+potential-bugs:
+  active: true
+  UnreachableCode:
+    active: true

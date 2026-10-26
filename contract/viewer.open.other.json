@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "schema": {
+    "command": "string",
+    "kind": "string",
+    "message": {
+      "t": "string"
+    },
+    "ok": "boolean"
+  },
+  "example": {
+    "ok": false,
+    "kind": "other",
+    "command": "prevue show <repo>/other-app/src/X.kt",
+    "message": {
+      "t": "open.otherApp"
+    }
+  }
+}

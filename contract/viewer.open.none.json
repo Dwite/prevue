@@ -1,0 +1,23 @@
+{
+  "status": 200,
+  "schema": {
+    "kind": "string",
+    "message": {
+      "a": {
+        "file": "string"
+      },
+      "t": "string"
+    },
+    "ok": "boolean"
+  },
+  "example": {
+    "ok": false,
+    "kind": "none",
+    "message": {
+      "t": "open.noPreview",
+      "a": {
+        "file": "Dup.kt"
+      }
+    }
+  }
+}

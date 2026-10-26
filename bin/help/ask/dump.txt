@@ -1,0 +1,1 @@
+This is the first time opening this module, so the project's build settings need to be read once. It may take a few minutes, and no project files are changed.

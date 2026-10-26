@@ -1,0 +1,3 @@
+prevue log [lines]
+
+The end of the daemon log (40 lines by default). For each save, the reload line has the detect · compile · render times.

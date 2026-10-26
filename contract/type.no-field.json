@@ -1,0 +1,13 @@
+{
+  "status": 422,
+  "schema": {
+    "error": "string",
+    "ok": "boolean",
+    "why": "string"
+  },
+  "example": {
+    "ok": false,
+    "error": "포커스된 텍스트 필드가 없다 — 먼저 prevue touch --at <파일>:<라인> 으로 필드를 누른다",
+    "why": "포커스된 텍스트 필드가 없다"
+  }
+}

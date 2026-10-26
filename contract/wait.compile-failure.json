@@ -1,0 +1,81 @@
+{
+  "status": 422,
+  "schema": {
+    "by": "string",
+    "compile": {
+      "exitCode": "string",
+      "files": [
+        "string"
+      ],
+      "messages": "string",
+      "ms": "number",
+      "ok": "boolean"
+    },
+    "failure": "string",
+    "lines": "number",
+    "message": "string",
+    "ok": "boolean",
+    "preview": {
+      "file": "string",
+      "fqn": "string",
+      "index": "number",
+      "methodParams": [
+        "empty"
+      ],
+      "params": {},
+      "previewId": "string"
+    },
+    "stale": {
+      "compile": {
+        "files": [
+          "string"
+        ],
+        "message": "string",
+        "remedy": "string",
+        "since": "string",
+        "what": "string"
+      }
+    },
+    "tab": "string",
+    "totalMs": "number",
+    "waitedMs": "number"
+  },
+  "example": {
+    "ok": false,
+    "failure": "COMPILE",
+    "message": "e: 가짜 실패",
+    "stale": {
+      "compile": {
+        "files": [
+          "<repo>/app/src/main/kotlin/demo/Cards.kt"
+        ],
+        "what": "The compile failed, so the image you see is from before this save",
+        "message": "e: 가짜 실패",
+        "remedy": "Fix the source and save again",
+        "since": "<at>"
+      }
+    },
+    "compile": {
+      "ok": false,
+      "exitCode": "COMPILATION_ERROR",
+      "messages": "e: 가짜 실패",
+      "ms": 0,
+      "files": [
+        "<repo>/app/src/main/kotlin/demo/Cards.kt"
+      ]
+    },
+    "totalMs": 0,
+    "by": "http",
+    "preview": {
+      "fqn": "demo.CardsKt.Card0",
+      "previewId": "Card0",
+      "params": {},
+      "file": "<repo>/app/src/main/kotlin/demo/Cards.kt",
+      "index": 0,
+      "methodParams": []
+    },
+    "lines": 6,
+    "waitedMs": 0,
+    "tab": "<repo>/app/src/main/kotlin/demo/Cards.kt"
+  }
+}

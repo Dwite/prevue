@@ -1,0 +1,1 @@
+Drawing previews needs the macOS developer tools (Command Line Tools), which this Mac doesn't have yet. Shall I open the install window? Clicking "Install" in the window takes a few minutes, and it's only needed once on this computer.

@@ -1,0 +1,158 @@
+#!/bin/bash
+# 스킬 평가용 가짜 prevue(NFR-15). 렌더러 · 데몬 없이 상황(EVAL_PREVUE_SCENARIO)마다 정해진 JSON 과 종료 코드를 낸다.
+# 도움말은 진짜 bin/help 를 그대로 보인다 — 평가하는 것이 "도움말만 보고 맞는 명령을 고르는가"라서(D-55).
+# 부른 명령은 EVAL_PREVUE_LOG 가 있으면 한 줄씩 적는다 — Codex 채점기가 target: prevue_log 로 읽으므로(권한 상승 · 실행 여부)
+# 줄 모양("<명령> <인자>" + 샌드박스 안이면 " [sandbox]")을 바꾸지 않는다. 도움말을 읽은 것은 실행이 아니라 적지 않는다.
+set -u
+HERE="$(cd "$(dirname "$0")" && pwd)"
+HELP="$HERE/help"
+PNG="$HERE/../fixtures/card.png"
+SCENARIO="${EVAL_PREVUE_SCENARIO:-ready}"
+cmd="${1:-}"; shift 2>/dev/null
+# --lang 은 진짜 CLI 처럼 어느 명령에나 붙는다 — 파일 인자로 읽지 않게 걷어 내고 뷰어 주소에만 싣는다
+LANG_Q=""; LANG_ARG=""; ARGV=()
+while [ $# -gt 0 ]; do case "$1" in --lang) LANG_Q="?lang=${2:-}"; LANG_ARG=" --lang ${2:-}"; shift; [ $# -gt 0 ] && shift;; *) ARGV+=("$1"); shift;; esac; done
+set -- ${ARGV[@]+"${ARGV[@]}"}
+
+case "$cmd" in
+  -h|--help|help) H="${1:-index}"; [ -f "$HELP/$H.txt" ] || H=index; cat "$HELP/$H.txt"; exit 0 ;;
+esac
+for a in "$@"; do case "$a" in -h|--help) [ -f "$HELP/$cmd.txt" ] && cat "$HELP/$cmd.txt" || cat "$HELP/index.txt"; exit 0 ;; esac; done
+[ -f "$HELP/$cmd.txt" ] || { cat "$HELP/index.txt" >&2; exit 2; }
+# 샌드박스 안에서 불렸는지도 적는다 — Codex 는 seatbelt 로 띄운 명령에만 CODEX_SANDBOX 를 준다
+[ -n "${EVAL_PREVUE_LOG:-}" ] && echo "$cmd $*${CODEX_SANDBOX:+ [sandbox]}" >> "$EVAL_PREVUE_LOG"
+
+# 진짜 CLI 와 같다: Codex 샌드박스 안의 setup · warmup 은 돌지 않고 권한 상승을 요구한다(bin/prevue). Claude 에는 이 변수가 없다.
+# 공통 케이스는 Codex 권한이 이미 있다고 보고 돈다(EVAL_PREVUE_PERMITTED) — 권한 상승은 codex-cases 에서만 잰다.
+case "$cmd" in setup|warmup)
+  if [ "${CODEX_SANDBOX:-}" = seatbelt ] && [ -z "${EVAL_PREVUE_PERMITTED:-}" ]; then
+    echo "{\"ok\":false,\"needsEscalation\":true,\"error\":\"$cmd doesn't run inside the Codex sandbox — run the same command again outside the sandbox (escalated)\"}"
+    exit 1
+  fi ;;
+esac
+
+file_of() { for a in "$@"; do case "$a" in -*) ;; *) printf '%s' "$a"; return ;; esac; done; printf '/work/app/src/main/kotlin/Screen.kt'; }
+# 사람에게 할 말은 진짜 CLI 와 같은 파일(bin/help/ask)에서 읽는다 — 평가가 실제로 나갈 문장으로 돈다(D-86).
+# say <이름>... 은 문장들을 한 칸 띄워 잇고 JSON 문자열로 낸다. {config} · {root} 자리만 채운다.
+say() {
+  local t="" n
+  for n in "$@"; do t="$t${t:+ }$(cat "$HELP/ask/$n.txt")"; done
+  python3 -c 'import json,sys; print(json.dumps(sys.argv[1].replace("{config}", sys.argv[2]).replace("{root}", sys.argv[3]), ensure_ascii=False))' \
+    "$t" "${SAY_CONFIG:-}" "${HOME:-/home}/.prevue"
+}
+board() {
+  printf '{"ok":true,"file":"%s","complete":true,"viewer":"http://127.0.0.1:8801/%s","cards":[' "$1" "$LANG_Q"
+  printf '{"index":0,"name":"GreetingPreview","ok":true,"label":"phone","image":"%s","tree":"%s.viewinfo.json"},' "$PNG" "$PNG"
+  printf '{"index":1,"name":"GreetingPreview","ok":true,"label":"tablet","image":"%s","tree":"%s.viewinfo.json"},' "$PNG" "$PNG"
+  printf '{"index":2,"name":"GreetingDarkPreview","ok":true,"label":"phone","image":"%s","tree":"%s.viewinfo.json"},' "$PNG" "$PNG"
+  printf '{"index":3,"name":"GreetingDarkPreview","ok":true,"label":"tablet","image":"%s","tree":"%s.viewinfo.json"}]}\n' "$PNG" "$PNG"
+}
+SHOW=""; [ "$cmd" = show ] && SHOW=" --show"
+SHOW="$SHOW$LANG_ARG"
+unready() {
+  printf '{"ok":false,"module":":app","variant":"debug","variantChosenBy":"fresh","toolchain":true,"classpath":null,"resourcesFrom":null,"daemon":false,"missing":["dump","daemon"],"next":"prevue warmup %s%s","ask":%s}\n' "$1" "$SHOW" "$(say dump proceed)"
+}
+# 이 머신에서 처음 — 툴체인도 빌드 설정도 없다. 한 질문으로 한 번 묻고 setup 다음 then 의 warmup 이다.
+first_install() {
+  printf '{"ok":false,"module":":app","variant":"debug","variantChosenBy":"fresh","toolchain":false,"classpath":null,"daemon":false,"missing":["toolchain","dump","daemon"],"next":"prevue setup","then":"prevue warmup %s%s","ask":%s}\n' "$1" "$SHOW" "$(say toolchain-dump proceed)"
+}
+# 라이브러리 모듈이고 리소스를 빌릴 앱이 둘이다 — 고르기와 빌드 설정 승인이 한 질문이다.
+choose_app() {
+  printf '{"ok":false,"module":":core:ui","variant":"debug","variantChosenBy":"fresh","toolchain":true,"classpath":null,"daemon":false,"need":"choose","choose":["resourcesFrom"],"resourceApks":[{"module":":app","variant":"debug"},{"module":":wear","variant":"debug"}],"missing":["dump","daemon"],"next":"prevue warmup %s --resources-from <:app|:wear>%s","options":[":app",":wear"],"ask":%s}\n' "$1" "$SHOW" "$(say choose-app dump)"
+}
+# Codex 샌드박스가 127.0.0.1 · ~/.prevue 를 막는다(health 의 sandbox). 설정 파일 자리는 **평가용 사본**을 가리킨다 —
+# 자동 리뷰가 권한 상승을 승인해 에이전트가 고쳐도 사용자의 진짜 config.toml 은 안전하다.
+sandboxed() {  # <파일> <restartNeeded:true|false>
+  local cfg; cfg="$(dirname "${EVAL_PREVUE_LOG:-/tmp/x}")/codex-config.toml"
+  # 병합 케이스 — 사용자가 이미 손댄 설정(다른 키 · 주석 · 같은 테이블의 다른 경로)이 있다. 처음 한 번만 심는다.
+  if [ "$SCENARIO" = sandbox-merge ] && [ ! -f "$cfg" ]; then
+    printf '# 내 설정 — 지우지 마\nmodel = "gpt-x"\n\n[sandbox_workspace_write]\n# 다른 도구용\nwritable_roots = ["/tmp/other-tool"]\n\n[tui]\ntheme = "dark"\n' > "$cfg"
+  fi
+  local configured=false extra="" words
+  words=',"ask":'"$(SAY_CONFIG="$cfg" say sandbox)"',"tell":'"$(say sandbox-restart)"
+  [ "$2" = true ] && { configured=true; extra=',"restartNeeded":true'; words=',"tell":'"$(say sandbox-restart)"; }
+  printf '{"ok":false,"module":":app","variant":"debug","toolchain":true,"classpath":"/home/.prevue/projects/k/app-debug.json","daemon":false,"sandbox":{"agent":"codex","networkDisabled":true,"configured":%s,"config":"%s"%s},"missing":["sandbox","daemon"],"next":"prevue start --classpath /home/.prevue/projects/k/app-debug.json --show %s'"$LANG_ARG"'"%s}\n' "$configured" "$cfg" "$extra" "$1" "$words"
+}
+
+warmup_done() {
+  : > "$STATE"
+  local a
+  for a in "$@"; do
+    if [ "$a" = --show ]; then
+      board "$F" | python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+d.update(preparation={"classpath":"/home/.prevue/projects/k/app-debug.json","module":":app","variant":"debug"},
+         preparationViewer="http://127.0.0.1:8802/?id=eval")
+if "--no-open" in sys.argv or "seatbelt" in sys.argv:
+    d["opened"] = False
+print(json.dumps(d))' "$@" "${CODEX_SANDBOX:-}"
+      return
+    fi
+  done
+  printf '{"ok":true,"classpath":"/home/.prevue/projects/k/app-debug.json","module":":app","variant":"debug","next":"prevue start --classpath /home/.prevue/projects/k/app-debug.json --show %s"}\n' "$F"
+}
+
+# 리소스(values)에 새 항목을 더한 저장 — 데몬은 떠 있고 그림은 저장 전 것이다. wait 는 종료 0 에 stale.resources 를 싣고(진짜와 같다),
+# health 가 다시 읽기를 묻는다. warmup 뒤에는 낡음이 닫힌다. 저장한 파일(strings.xml)과 프리뷰 파일이 달라 상태는 작업 디렉터리로 가른다.
+RES_STATE="${TMPDIR:-/tmp}/prevue-eval-$(pwd | cksum | cut -d' ' -f1).resources"
+res_screen() { printf '%s/app/src/main/kotlin/Screen.kt' "$(pwd)"; }
+res_stale() {
+  board "$F" | python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+d["stale"] = {"resources": {"files": [sys.argv[1]], "what": "리소스가 바뀌었어요. 렌더러에 든 리소스 APK는 부트스트랩 때의 것이에요",
+              "message": "strings.xml: @string/tap_hint은(는) 새 항목이에요. R id가 새로 생겨요",
+              "remedy": "prevue warmup %s 으로 리소스를 다시 읽으세요. 이 데몬이 그 모듈을 그리면 warmup 이 데몬을 내려요" % sys.argv[2]}}
+print(json.dumps(d, ensure_ascii=False))' "$(pwd)/app/src/main/res/values/strings.xml" "$(res_screen)"
+}
+
+F="$(file_of "$@")"
+# warmup 이 돌면 그 파일은 준비가 끝난다 — 다음 show · health · wait 는 준비된 응답이다. 여태는 warmup 뒤에도 "준비 안 됨"이라
+# 에이전트가 덤프 파일을 찾아 헤매는 명령을 더 쳤다(Codex 평가 기준선 3/3). 파일 경로가 실행마다 달라 상태가 섞이지 않는다.
+STATE="${TMPDIR:-/tmp}/prevue-eval-$(printf '%s' "$F" | cksum | cut -d' ' -f1).warmed"
+# setup 은 파일을 받지 않는다 — 받은 자리를 실행의 작업 디렉터리로 가른다.
+SETUP_STATE="${TMPDIR:-/tmp}/prevue-eval-$(pwd | cksum | cut -d' ' -f1).setup"
+case "$SCENARIO" in unready|first-install|choose-app) [ -f "$STATE" ] && SCENARIO=ready ;; esac
+[ "$SCENARIO" = first-install ] && [ -f "$SETUP_STATE" ] && SCENARIO=unready
+case "$SCENARIO:$cmd" in
+  unready:show|unready:health|unready:wait) unready "$F"; exit 3 ;;
+  first-install:show|first-install:health|first-install:wait) first_install "$F"; exit 3 ;;
+  choose-app:show|choose-app:health|choose-app:wait) choose_app "$F"; exit 3 ;;
+  first-install:setup) : > "$SETUP_STATE"; printf '{"ok":true,"toolchain":true,"alreadyHad":false}\n'; exit 0 ;;
+  first-install:warmup|choose-app:warmup) warmup_done "$@"; exit 0 ;;
+  sandbox:show|sandbox:health|sandbox:wait|sandbox:start|sandbox-merge:show|sandbox-merge:health|sandbox-merge:wait|sandbox-merge:start) sandboxed "$F" false; exit 3 ;;
+  # 판올림 뒤 첫 start — 실행 파일을 굽느라 Gradle 을 불러 샌드박스 안에서는 돌지 않는다. health 가 startNeedsEscalation 으로 미리 알린다.
+  unbaked:show|unbaked:health|unbaked:wait)
+    [ -f "$STATE" ] && { board "$F"; exit 0; }   # 권한 상승으로 띄운 뒤에는 준비됐다
+    printf '{"ok":false,"module":":app","variant":"debug","toolchain":true,"classpath":"/home/.prevue/projects/k/app-debug.json","daemon":false,"missing":["daemon"],"startNeedsEscalation":true,"next":"prevue start --classpath /home/.prevue/projects/k/app-debug.json --show %s'"$LANG_ARG"'"}\n' "$F"; exit 3 ;;
+  unbaked:start)
+    if [ "${CODEX_SANDBOX:-}" = seatbelt ]; then
+      echo '{"ok":false,"needsEscalation":true,"error":"The first start after an update calls Gradle to build the executable — run the same command again outside the sandbox (escalated), just this once"}'; exit 1
+    fi
+    : > "$STATE"; board "$F"; exit 0 ;;
+  # show 가 데몬을 스스로 띄웠는데 샌드박스가 브라우저 열기를 막았다 — 주소를 링크로 건네야 한다. 어느 명령으로 봐도 같다.
+  not-opened:show|not-opened:start|not-opened:wait) board "$F" | python3 -c 'import json,sys; d=json.load(sys.stdin); d.update(started=True, opened=False); print(json.dumps(d))'; exit 0 ;;
+  sandbox-restart:show|sandbox-restart:health|sandbox-restart:wait|sandbox-restart:start) sandboxed "$F" true; exit 3 ;;
+  unready:warmup) warmup_done "$@"; exit 0 ;;
+  resource-stale:warmup) : > "$RES_STATE"; warmup_done "$@"; exit 0 ;;
+  resource-stale:wait|resource-stale:show|resource-stale:status|resource-stale:board)
+    [ -f "$RES_STATE" ] || ! grep -q tap_hint app/src/main/res/values/strings.xml 2>/dev/null && { board "$F"; exit 0; }
+    res_stale; exit 0 ;;
+  resource-stale:health)
+    if [ ! -f "$RES_STATE" ] && grep -q tap_hint app/src/main/res/values/strings.xml 2>/dev/null; then
+      printf '{"ok":false,"module":":app","variant":"debug","toolchain":true,"classpath":"/home/.prevue/projects/k/app-debug.json","daemon":true,"daemonStale":["resources"],"viewer":"http://127.0.0.1:8801/'"$LANG_Q"'","missing":["dump"],"next":"prevue warmup %s'"$LANG_ARG"'","ask":%s}\n' "$F" "$(say dump-resources proceed)"
+      exit 1
+    fi
+    printf '{"ok":true,"module":":app","variant":"debug","toolchain":true,"daemon":true,"missing":[],"viewer":"http://127.0.0.1:8801/'"$LANG_Q"'"}\n'; exit 0 ;;
+  *:show|*:wait|*:start) board "$F"; exit 0 ;;
+  *:health) printf '{"ok":true,"module":":app","variant":"debug","toolchain":true,"daemon":true,"missing":[],"viewer":"http://127.0.0.1:8801/'"$LANG_Q"'"}\n'; exit 0 ;;
+  selection-empty:selection) printf '{"ok":false,"error":"Nothing pointed at — ⌥+click in the viewer"}\n'; exit 1 ;;
+  *:selection) printf '{"ok":true,"file":"%s","line":12,"node":"Text","userChain":["Greeting","Column","Text"],"image":"%s"}\n' "$F" "$PNG"; exit 0 ;;
+  *:card) printf '{"ok":true,"index":%s,"image":"%s","rendered":true}\n' "${1:-0}" "$PNG"; exit 0 ;;
+  *:board|*:status) board "$F"; exit 0 ;;
+  *:focus|*:touch|*:render|*:reload|*:open|*:close|*:stop) printf '{"ok":true}\n'; exit 0 ;;
+  *:previews) printf '{"ok":true,"previews":[{"fqn":"GreetingPreview"},{"fqn":"GreetingDarkPreview"}]}\n'; exit 0 ;;
+  *:setup) printf '{"ok":true}\n'; exit 0 ;;
+  *) printf '{"ok":true}\n'; exit 0 ;;
+esac

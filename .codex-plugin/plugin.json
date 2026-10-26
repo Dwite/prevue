@@ -1,0 +1,31 @@
+{
+  "name": "prevue",
+  "version": "0.18.0",
+  "description": "Opens Jetpack Compose @Previews in the browser without Android Studio, and lets your agent read the spot you point at on screen as a file and line.",
+  "author": {
+    "name": "Origogi"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "android",
+    "jetpack-compose",
+    "preview",
+    "hot-reload",
+    "layoutlib"
+  ],
+  "skills": "./codex/skills/",
+  "interface": {
+    "displayName": "Prevue",
+    "shortDescription": "See Compose Previews without Android Studio and point at the screen",
+    "longDescription": "Renders Jetpack Compose @Previews with headless layoutlib and opens them in the browser. Saving redraws them in about a second, and your agent reads the node you click in a Preview as a file and line.",
+    "developerName": "Kakao Corp.",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Show the Previews for this Compose screen"
+    ]
+  }
+}

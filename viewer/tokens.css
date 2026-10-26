@@ -1,0 +1,217 @@
+/* Prevue 디자인 시스템 — 값은 여기 한 곳에만 둔다.
+   두 층이다. 원시값(--gray-* · --blue-* · --size-* …)은 단계일 뿐이고, 화면 CSS는 역할 이름만 쓴다.
+   단계는 GitHub Primer의 공개 토큰에서 가져왔다. 로고 · 브랜드 색 · 서체 · 컴포넌트 모양은 가져오지 않는다.
+   라이트 · 다크는 역할 이름 안의 light-dark() 한 줄이 가른다 — 다크 값을 두 번 적지 않으려고.
+   light-dark()는 쓰이는 자리에서 풀리므로 JS가 getComputedStyle로 역할 이름을 읽으면 풀리지 않은 글자가 온다. */
+
+:root {
+  /* 원시값 — 회색. 라이트와 다크는 단계가 따로다(다크는 라이트를 뒤집은 것이 아니다). */
+  --gray-light-0: #ffffff;
+  --gray-light-1: #f6f8fa;
+  --gray-light-6: #d1d9e0;
+  --gray-light-8: #818b98;
+  --gray-light-9: #59636e;
+  --gray-light-11: #25292e;
+  --gray-light-12: #1f2328;
+  --gray-light-alpha-10: #818b981a;
+  --gray-light-alpha-12: #818b981f;
+  --gray-light-alpha-15: #818b9826;
+  --gray-dark-0: #010409;
+  --gray-dark-1: #0d1117;
+  --gray-dark-2: #151b23;
+  --gray-dark-7: #3d444d;
+  --gray-dark-8: #656c76;
+  --gray-dark-9: #9198a1;
+  --gray-dark-12: #f0f6fc;
+  --gray-dark-alpha-20: #656c7633;
+  --gray-dark-alpha-25: #656c7640;
+
+  /* 원시값 — 의미 색. 파랑은 가리키기 · 조작 중에만 쓴다(D-93). */
+  --blue-light: #0969da;
+  --blue-light-muted: #0969da1a;
+  --blue-dark: #1f6feb;
+  --blue-dark-muted: #388bfd1a;
+  --red-light: #d1242f;
+  --red-light-muted: #ffebe9;
+  --red-dark: #f85149;
+  --red-dark-muted: #f851491a;
+  --yellow-light: #9a6700;
+  --yellow-dark: #d29922;
+  --green-light: #1a7f37;
+  --green-dark: #3fb950;
+
+  /* 원시값 — 글자. 서체 파일은 싣지 않는다(D-95). */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", "Noto Sans KR", "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --size-12: 12px;
+  --size-13: 13px;
+  --size-14: 14px;
+  --size-16: 16px;
+  --size-20: 20px;
+  --size-32: 32px;
+  --size-40: 40px;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* 원시값 — 간격. 2px 단위에서 시작해 4px 단위로 큰다. */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  /* 역할 — 색. 이름은 Material 3를 잇는다(D-93). */
+  color-scheme: light dark;
+  --surface: light-dark(var(--gray-light-1), var(--gray-dark-1));
+  --surface-container: light-dark(var(--gray-light-0), var(--gray-dark-2));
+  --surface-container-high: light-dark(var(--gray-light-alpha-12), var(--gray-dark-alpha-20));
+  --state-hover: light-dark(var(--gray-light-alpha-10), var(--gray-dark-alpha-20));
+  --primary-container: light-dark(var(--gray-light-alpha-15), var(--gray-dark-alpha-25));
+  --on-surface: light-dark(var(--gray-light-12), var(--gray-dark-12));
+  --on-surface-variant: light-dark(var(--gray-light-9), var(--gray-dark-9));
+  --on-surface-disabled: light-dark(var(--gray-light-8), var(--gray-dark-8));
+  /* outline은 입력 · 버튼처럼 경계가 보여야 하는 테두리라 3:1을 넘긴다. 구분선은 outline-variant(장식이라 대비 면제). */
+  --outline: light-dark(var(--gray-light-8), var(--gray-dark-8));
+  --outline-variant: light-dark(var(--gray-light-6), var(--gray-dark-7));
+  --primary: light-dark(var(--gray-light-11), var(--gray-dark-7));
+  --on-primary: var(--gray-light-0);
+  --focus-ring: var(--on-surface);
+  --pick: light-dark(var(--blue-light), var(--blue-dark));
+  --pick-container: light-dark(var(--blue-light-muted), var(--blue-dark-muted));
+  --on-pick: var(--gray-light-0);
+  --live: var(--pick);
+  --error: light-dark(var(--red-light), var(--red-dark));
+  --error-container: light-dark(var(--red-light-muted), var(--red-dark-muted));
+  --on-error: var(--gray-light-0);
+  --warning: light-dark(var(--yellow-light), var(--yellow-dark));
+  --success: light-dark(var(--green-light), var(--green-dark));
+  --scrim: light-dark(#c8d1da66, #262c3666);
+
+  /* 역할 — 글자. font 한 줄로 쓴다. 12px 아래는 없다. */
+  --type-display: var(--weight-medium) var(--size-40)/1.375 var(--font-sans);
+  --type-title-large: var(--weight-semibold) var(--size-32)/1.5 var(--font-sans);
+  --type-title-medium: var(--weight-semibold) var(--size-20)/1.625 var(--font-sans);
+  --type-title-small: var(--weight-semibold) var(--size-16)/1.5 var(--font-sans);
+  --type-body-large: var(--weight-regular) var(--size-16)/1.5 var(--font-sans);
+  --type-body-medium: var(--weight-regular) var(--size-14)/1.5 var(--font-sans);
+  --type-body-small: var(--weight-regular) var(--size-12)/1.625 var(--font-sans);
+  --type-label-large: var(--weight-medium) var(--size-14)/1.25 var(--font-sans);
+  --type-label-medium: var(--weight-medium) var(--size-12)/1.25 var(--font-sans);
+  --type-label-small: var(--weight-regular) var(--size-12)/1.25 var(--font-sans);
+  --type-code: var(--weight-regular) var(--size-13)/1.5 var(--font-mono);
+  --type-code-small: var(--weight-regular) var(--size-12)/1.25 var(--font-mono);
+
+  /* 역할 — 조작 높이 · 모서리 · 그림자 */
+  --control-small: 24px;
+  --control-medium: 28px;
+  --control-large: 32px;
+  --control-xlarge: 40px;
+  --corner-small: 3px;
+  --corner-medium: 6px;
+  --corner-large: 12px;
+  --corner-full: 9999px;
+  --elevation-1: 0 1px 1px 0 light-dark(#1f23280a, #01040999), 0 1px 2px 0 light-dark(#1f232808, #01040999);
+  --elevation-2: 0 1px 1px 0 light-dark(#25292e1a, #01040966), 0 3px 6px 0 light-dark(#25292e1f, #010409cc);
+  --elevation-3: 0 0 0 1px light-dark(#d1d9e040, #3d444d), 0 6px 12px -3px light-dark(#25292e0a, #01040966), 0 6px 18px 0 light-dark(#25292e1f, #01040966);
+  --elevation-4: 0 0 0 1px light-dark(#d1d9e000, #3d444d), 0 24px 48px 0 light-dark(#25292e3d, #010409);
+  /* SVG처럼 box-shadow가 안 닿는 그림에 같은 높이를 준다. */
+  --elevation-2-filter: drop-shadow(0 1px 1px light-dark(#25292e1a, #01040966)) drop-shadow(0 3px 6px light-dark(#25292e1f, #010409cc));
+
+  /* 역할 — 시간 · 이징. 이름은 Material 3의 단계를 따른다. */
+  --duration-short1: 50ms;
+  --duration-short2: 100ms;
+  --duration-short3: 150ms;
+  --duration-short4: 200ms;
+  --duration-medium1: 250ms;
+  --duration-medium2: 300ms;
+  --duration-long1: 450ms;
+  --duration-long3: 550ms;
+  --duration-long4: 600ms;
+  --duration-extra-long2: 800ms;
+  --duration-extra-long3: 900ms;
+  --duration-extra-long4: 1000ms;
+  --easing-standard: cubic-bezier(.6, 0, .2, 1);
+  --easing-decelerate: cubic-bezier(.3, .8, .6, 1);
+  --easing-accelerate: cubic-bezier(.7, .1, .75, .9);
+  --motion-enter-scale: .96;
+  --motion-enter-shift: 8px;
+  /* 줄이 차례로 떠오를 때의 한 칸. n번째는 n칸 늦게 온다. */
+  --motion-stagger: 20ms;
+
+  /* 그림용 — 크롬이 아니라 그림이라 색을 갖는다. 화면 CSS가 크롬에 쓰지 않는다. */
+  /* 앱 아이콘이 없을 때의 이니셜 타일. 이름에서 하나를 고른다(header.js). */
+  --avatar-1: #5b8def;
+  --avatar-2: #7a6ff0;
+  --avatar-3: #e4699a;
+  --avatar-4: #e8875b;
+  --avatar-5: #d4a72c;
+  --avatar-6: #4fae7b;
+  --avatar-7: #3ea6b5;
+  --avatar-8: #8e8e93;
+  --on-avatar: var(--gray-light-0);
+  /* 작업 공간의 기기 몸체. 실제 기기 색이라 라이트 · 다크가 같다. */
+  --device-body: #1d1d1f;
+  --device-camera: #050505;
+  --device-flap: #0b0b0d;
+  --device-tone-s26: #23262c;
+  --device-tone-ipduo: #4a4744;
+  --device-tone-fold8: #2b2d32;
+  --device-tone-ultra: #1f2125;
+  --device-tone-pixel9: #27292d;
+  --device-tone-pixelfold: #2f3135;
+  --device-tone-tablet: #3a3a38;
+  --device-tone-ip17: #2c2c2e;
+  --device-tone-ipair: #46484c;
+  --device-tone-ip17pm: #3b3a38;
+  --device-gloss: rgb(255 255 255 / .18);
+  --device-gloss-clear: rgb(255 255 255 / 0);
+  --device-gloss-shade: rgb(0 0 0 / .2);
+  --device-rim: rgb(255 255 255 / .12);
+  --device-inset: rgb(255 255 255 / .1);
+  --device-hairline: rgb(0 0 0 / .5);
+  --device-crease-light: rgb(255 255 255 / .6);
+  --device-crease-dark: rgb(0 0 0 / .18);
+  --device-sheen: rgb(255 255 255 / .85);
+  --device-veil: #ffffff;
+  --device-shade: #000000;
+}
+
+/* 그림용 — 준비 화면 일러스트. 조각이 모이는 움직임만 두고 색은 크롬과 같은 무채색 역할에 잇는다(D-102). */
+:root {
+  --art-shape-edge: var(--outline-variant);
+  --art-panel: var(--surface-container);
+  --art-ink: var(--on-surface-variant);
+  --art-line: var(--outline-variant);
+  --art-solid-top: var(--surface-container);
+  --art-solid-bottom: var(--surface-container-high);
+  --art-solid-shade: var(--state-hover);
+  --art-shape-shadow: var(--state-hover);
+  --art-outline-shade: var(--state-hover);
+  --art-floor: var(--state-hover);
+  --art-action-a: var(--surface-container-high); --art-action-b: var(--outline-variant);
+  --art-tag-a: var(--surface-container-high); --art-tag-b: var(--outline-variant);
+  --art-bg: var(--surface-container-high);
+  --art-fill-a: var(--outline-variant); --art-fill-b: var(--surface-container-high);
+  --art-accent: var(--outline); --art-dot: var(--outline); --art-pill: var(--outline-variant);
+  --art-tag-surface: var(--surface-container-high);
+}
+
+/* 시스템 설정을 따른다. 뷰어 · 견본이 한 영역만 고정할 때 data-theme를 단다. */
+[data-theme="light"] { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
+
+/* 움직임 줄이기 — 시간은 두고 이동 · 확대만 없앤다. 시간을 0으로 두면 transitionend가 오지 않는다. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-enter-scale: 1;
+    --motion-enter-shift: 0px;
+  }
+}

@@ -1,0 +1,1 @@
+Previews aren't ready to draw yet. The first time, the needed components are downloaded. It takes about a minute and is only needed once on this computer.

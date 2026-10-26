@@ -1,0 +1,1 @@
+Previewing needs two things the first time: downloading the components (about a minute, once on this computer) and reading this project's build settings (a few minutes, once per module). No project files are changed.

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 렌더러는 리소스 APK의 음수 치수를 부호 없이 읽는다 — Prevue 통합 테스트가 기기처럼 읽는지 본다. 정수 · 소수 · 분수 셋. -->
+<resources>
+    <dimen name="pearl_badge_overlap">-3dp</dimen>
+    <dimen name="pearl_hairline_nudge">-0.5dp</dimen>
+    <fraction name="pearl_peek">-50%p</fraction>
+    <dimen name="pearl_card_corner">24dp</dimen>
+</resources>

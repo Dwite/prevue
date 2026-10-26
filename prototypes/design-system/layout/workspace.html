@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 시안 — 작업 공간</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="draft.css">
+<style>
+  /* 실제 기하(1440×900 창)로 그리고 줄여 보인다. ?zoom=1 이면 실제 크기 */
+  .win.wide { width: 1440px; height: 900px; }
+  .frames .win { zoom: var(--draft-zoom, .55); }
+
+  /* 작업 공간 머리 — 앱 록업 자리에 돌아갈 곳과 이 장의 이름 */
+  .nav { display: flex; align-items: center; gap: var(--space-12); height: 52px; flex: none; padding: 0 var(--space-16); border-bottom: 1px solid var(--outline-variant); position: relative; }
+  .nav .back { display: inline-flex; align-items: center; gap: var(--space-4); height: var(--control-large); padding: 0 var(--space-8) 0 var(--space-4); border-radius: var(--corner-medium); color: var(--on-surface-variant); font: var(--type-label-large); }
+  .nav .back:hover { background: var(--state-hover); }
+  .nav .title { position: absolute; left: 50%; transform: translateX(-50%); display: grid; justify-items: center; }
+  .nav .title b { font: var(--type-title-small); }
+  .nav .title span { color: var(--on-surface-variant); font: var(--type-label-small); }
+  .nav .grow { flex: 1; }
+  .nav .tools { display: flex; align-items: center; gap: var(--space-4); }
+  .nav .tile { width: var(--control-medium); height: var(--control-medium); font: var(--type-label-large); }
+
+  .ws { display: flex; flex-direction: column; height: 100%; }
+  .ws .body { display: flex; flex: 1; min-height: 0; }
+  .ws .center { flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; }
+  .stagebox { flex: 1; min-height: 0; display: grid; place-items: center; position: relative; }
+
+  /* 무대 — 기기 몸체(그림 토큰) · 치수선 · 가리킨 박스 */
+  .dev { position: relative; padding: 12px; border-radius: 36px; background: var(--device-body); box-shadow: var(--elevation-2); }
+  .dev .scr { position: relative; display: flex; border-radius: 24px; overflow: hidden; }
+  .dev .scr img { display: block; height: 560px; width: auto; }
+  .dev .hinge { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--device-crease-dark); }
+  .bare { position: relative; outline: 2px solid var(--live); }
+  .bare img { display: block; height: 600px; width: auto; }
+  .pickbox { position: absolute; border: 2px solid var(--pick); background: var(--pick-container); border-radius: var(--corner-small); }
+  .pickbox .tag { position: absolute; left: -2px; top: -24px; padding: 0 var(--space-6); border-radius: var(--corner-small); background: var(--pick); color: var(--on-pick); font: var(--type-code-small); line-height: 20px; white-space: nowrap; }
+  .dim { position: absolute; display: grid; place-items: center; color: var(--on-surface-variant); }
+  .dim.w { left: 0; right: 0; top: -36px; height: 20px; border-left: 1px dashed var(--outline-variant); border-right: 1px dashed var(--outline-variant); }
+  .dim.w::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--outline-variant); }
+  .dim.h { top: 0; bottom: 0; left: -44px; width: 20px; border-top: 1px dashed var(--outline-variant); border-bottom: 1px dashed var(--outline-variant); }
+  .dim.h::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px solid var(--outline-variant); }
+  .dim input { position: relative; width: 52px; height: var(--control-small); text-align: center; border: 1px solid var(--outline-variant); border-radius: var(--corner-small);
+    background: var(--surface); color: var(--on-surface); font: var(--type-code-small); }
+
+  /* 묶음 공통 — 떠 있는 바 */
+  .grp { display: inline-flex; align-items: center; gap: var(--space-2); height: var(--control-xlarge); padding: 0 var(--space-4); flex: none;
+    background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--corner-large); box-shadow: var(--elevation-2); }
+  .it { display: inline-flex; align-items: center; gap: var(--space-6); height: var(--control-large); padding: 0 var(--space-8); border-radius: var(--corner-medium);
+    color: var(--on-surface-variant); font: var(--type-label-large); white-space: nowrap; }
+  .it:hover { background: var(--state-hover); }
+  .it.on { background: var(--primary); color: var(--on-primary); }
+  .it.toggle.on { background: var(--primary-container); color: var(--on-surface); }
+  .it.mono { font: var(--type-code); }
+  .it.pct { min-width: 56px; justify-content: center; color: var(--on-surface); }
+  .vsep { width: 1px; height: 20px; background: var(--outline-variant); margin: 0 var(--space-4); }
+  .bottom { display: flex; justify-content: center; align-items: center; gap: var(--space-12); padding: 0 var(--space-16) var(--space-20); }
+
+  /* 안 C — 오른쪽 검사 패널 */
+  .panel { width: 248px; flex: none; border-left: 1px solid var(--outline-variant); padding: var(--space-16) var(--space-12); display: flex; flex-direction: column; gap: var(--space-20); overflow: hidden; }
+  .panel h4 { margin: 0 var(--space-4) var(--space-6); color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .panel .list { display: flex; flex-direction: column; gap: var(--space-2); }
+  .panel .it { justify-content: space-between; }
+  .panel .it .d { color: var(--on-surface-variant); font: var(--type-code-small); }
+  .panel .it.on .d { color: var(--on-primary); }
+  .panel .zrow { display: flex; align-items: center; gap: var(--space-2); }
+  .panel .wh { display: flex; gap: var(--space-8); padding: var(--space-4) var(--space-8); }
+  .panel .wh label { display: grid; gap: var(--space-2); color: var(--on-surface-variant); font: var(--type-label-small); }
+  .panel .wh input { width: 84px; height: var(--control-medium); padding: 0 var(--space-8); border: 1px solid var(--outline); border-radius: var(--corner-medium); background: var(--surface); color: var(--on-surface); font: var(--type-code-small); }
+  .dim input.editing { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+  .sls { display: grid; gap: var(--space-16); margin: var(--space-12) var(--space-4) 0; }
+  .sl-h { display: flex; justify-content: space-between; color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .sl-h .v { color: var(--on-surface); font: var(--type-code-small); }
+  .sl-h small { margin-left: var(--space-2); color: var(--on-surface-variant); }
+  .sl-track { position: relative; height: 4px; margin: var(--space-12) 0 var(--space-20); border-radius: var(--corner-full); background: var(--outline-variant); }
+  .sl-track .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--corner-full); background: var(--on-surface-variant); }
+  .sl-track .thumb { position: absolute; top: 50%; width: 16px; height: 16px; transform: translate(-50%, -50%); border-radius: var(--corner-full);
+    background: var(--surface-container); border: 2px solid var(--on-surface); box-shadow: var(--elevation-1); }
+  .sl-track .tick { position: absolute; top: 0; transform: translateX(-50%); display: grid; justify-items: center; }
+  .sl-track .tick i { width: 1px; height: 10px; margin-top: -3px; background: var(--outline); }
+  .sl-track .tick em { margin-top: var(--space-2); color: var(--on-surface-variant); font: var(--type-code-small); font-style: normal; }
+  .sl-ends { display: flex; justify-content: space-between; color: var(--on-surface-disabled); font: var(--type-code-small); }
+  .panel .seg { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+  /* 무대 위 슬라이더 — C1 가장자리 끌기, C2 치수선 슬라이더 */
+  .grip { position: absolute; border-radius: var(--corner-full); background: var(--on-surface-variant); box-shadow: 0 0 0 2px var(--surface); }
+  .grip.r { right: -9px; top: 50%; width: 6px; height: 40px; transform: translateY(-50%); }
+  .grip.b { bottom: -9px; left: 50%; width: 40px; height: 6px; transform: translateX(-50%); }
+  .grip.on { background: var(--live); }
+  .guide { position: absolute; top: -48px; bottom: -24px; border-left: 1px dashed var(--outline); }
+  .guide em { position: absolute; top: 0; left: var(--space-4); color: var(--on-surface-variant); font: var(--type-code-small); font-style: normal; white-space: nowrap; }
+  .ghost { position: absolute; left: 0; top: 0; border: 2px solid var(--live); border-radius: var(--corner-small); pointer-events: none; }
+  .rail-w { position: absolute; left: 50%; top: -64px; width: 360px; transform: translateX(-50%); }
+  .rail-h { position: absolute; top: 50%; left: -84px; height: 360px; transform: translateY(-50%); width: 40px; }
+  .rail-w .sl-track, .rail-h .sl-track { margin: 0; }
+  .rail-h .sl-track { width: 4px; height: 100%; margin-left: 18px; }
+  .rail-h .sl-track .fill { top: auto; left: 0; right: 0; width: auto !important; }
+  .rail-h .sl-track .thumb { left: 50% !important; }
+  .rail-h .sl-track .tick { left: 0 !important; transform: translateY(-50%); grid-auto-flow: column; align-items: center; }
+  .rail-h .sl-track .tick i { width: 10px; height: 1px; margin: 0 0 0 -3px; }
+  .rail-h .sl-track .tick em { margin: 0 0 0 var(--space-4); }
+  .rail-w .ends, .rail-h .ends { display: flex; justify-content: space-between; color: var(--on-surface-disabled); font: var(--type-code-small); }
+  .rail-w .ends { margin-top: var(--space-16); }
+  .rail-h .ends { position: absolute; inset: -20px 0; flex-direction: column; align-items: center; }
+  .rail-w .badge, .rail-h .badge { position: absolute; transform: translate(-50%, -100%); top: -8px; }
+  .rail-h .badge { left: 20px; transform: translate(-50%, -50%); top: auto; }
+  .badge input { width: 52px; height: var(--control-small); text-align: center; border: 1px solid var(--outline); border-radius: var(--corner-small); background: var(--surface); color: var(--on-surface); font: var(--type-code-small); }
+</style>
+</head>
+<body>
+<div class="page-top">
+  <h1 id="h1"></h1><span class="note" id="note"></span><span class="grow"></span>
+  <a href="./">← 시안 목록</a><a id="lang" href="#"></a>
+</div>
+<div id="root"></div>
+<script src="draft.js"></script>
+<script>
+  const T = {
+    ko: {
+      h1: "작업 공간", note: "화면 3/7 · 라이트는 @Preview 그대로 · 조작 중, 다크는 Fold8 펼침 · 150% · 가리킴 · 크기 막대와 치수선 화면(4/7)은 여기서 고른 자리를 다듬는다",
+      A: "안 A — 레일을 둔 채 아래 묶음 셋",
+      Ad: "<b>눈이 가는 순서</b> 그림 → 아래 묶음 → 레일. 작업 공간에서도 열린 파일이 보이고, 레일에서 다른 파일을 누르면 <b>작업 공간을 나와 그 탭으로</b> 간다(지금은 탭 줄이 물러나 이 길이 없다 — 나가기 + 탭 옮기기를 잇는 새 길). 무대 폭이 200px 준다. 아래 묶음 셋(확대 · 크기 막대 · 기기 자세)은 지금 자리 그대로.",
+      B: "안 B — 레일을 접고 아래 묶음 셋 (지금 흐름)",
+      Bd: "<b>눈이 가는 순서</b> 그림 → 아래 묶음 → 머리의 제목. 들어가면 레일이 접혀 무대가 창 폭을 다 쓴다. 머리는 앱 록업 자리에 <b>‹ 탭 이름</b>과 가운데 두 줄 제목. 지금 작업 공간과 같은 흐름에 레일만 접힌다. 크기 막대가 한 줄에 아홉 칸이라 영어 문구(Custom)에서 가장 길다.",
+      C: "안 C — 레일을 접고 오른쪽 검사 패널",
+      Cd: "<b>눈이 가는 순서</b> 그림 → 패널. 확대 · 크기 · 기기 · 자세가 오른쪽 248px 패널에 세로로 선다. 무대가 <b>세로를 다 쓰고</b> 아래가 비어 캡슐(떠 있는 층)과 다투지 않는다. 크기 칸에 dp가 함께 적힌다. 커스텀을 고르면 행 아래에 <b>폭 · 높이 슬라이더</b>가 펼쳐진다(라이트 창) — 막대 양 끝이 입력 범위 240–1600dp이고, 폭에는 Android 창 크기 구간 경계 600 · 840dp, 높이에는 480 · 900dp 눈금이 있다. 끌면 틀만 따라 움직이고 <b>놓을 때 한 번</b> 그린다. 정확한 숫자는 치수선에서 친다(같은 값). 무대 폭은 248px 준다.",
+      C1: "C의 커스텀 1 — 틀 가장자리를 끈다",
+      C1d: "커스텀이면 틀의 <b>오른쪽 · 아래 가장자리에 손잡이</b>가 생긴다. 끄는 동안 새 크기의 테두리만 따라오고(다크 창), 무대에 Android 창 크기 구간 경계 <b>600 · Medium / 840 · Expanded</b> 안내선이 나온다. 놓을 때 한 번 그린다. 치수선 숫자는 그대로 칠 수 있다. 범위 끝(240 · 1600)은 끝에 닿으면 멈추는 것으로만 보인다 — <b>범위가 늘 보이지는 않는다</b>. 1600dp는 무대보다 넓어 놓은 뒤 맞춤으로 줄어든다.",
+      C2: "C의 커스텀 2 — 치수선이 슬라이더가 된다",
+      C2d: "커스텀이면 폭 · 높이 치수선 자리에 <b>길이가 정해진 슬라이더</b>가 선다. 양 끝이 <b>240 · 1600</b>이라 범위가 늘 보이고, 눈금이 구간 경계(폭 600 · 840, 높이 480 · 900)다. 숫자 칸은 손잡이를 따라다니고 그대로 칠 수 있다. 대신 치수선이 더 이상 <b>틀 길이와 같지 않다</b> — 틀 크기를 재는 선이 아니라 범위 위의 위치가 된다.",
+      back: "PearlPreviews", name: "PearlListPreview", fn: "", fold: "접기", rot: "돌리기", hinge: "힌지 선", fit: "맞춤", custom: "커스텀",
+      size: "크기", device: "기기", posture: "기기 자세", zoom: "확대", w: "폭", h: "높이", foldName: "펼침", pickTag: "DrinkCard · DrinkCard.kt:31",
+    },
+    en: {
+      h1: "Workspace", note: "Screen 3/7 · light: @Preview as written, interacting · dark: Fold8 unfolded, 150%, picked · screen 4/7 refines the size bar and dimension lines in the spot chosen here",
+      A: "Option A — keep the rail, three bottom groups",
+      Ad: "<b>Eye order</b> image → bottom groups → rail. Open files stay visible; clicking another file <b>leaves the workspace and switches tab</b> (a new path that chains exit + tab switch). The stage loses 200px. The three bottom groups stay where they are today.",
+      B: "Option B — fold the rail, three bottom groups (today's flow)",
+      Bd: "<b>Eye order</b> image → bottom groups → title. The rail folds away so the stage gets the full width. The header shows <b>‹ tab name</b> and the two-line title. Same flow as today. The size bar has nine slots, longest in English (Custom).",
+      C: "Option C — fold the rail, inspector panel on the right",
+      Cd: "<b>Eye order</b> image → panel. Zoom, size, device and posture stack in a 248px right panel. The stage gets <b>full height</b> and the bottom stays free for the capsule. Size rows show dp. Picking Custom opens <b>width and height sliders</b> under the row (light frame): the track ends are the 240–1600dp range, with Android window size class marks at 600 and 840dp (height 480 and 900dp). Dragging moves only the frame; it <b>renders once on release</b>. Exact numbers are typed on the dimension lines (same value). The stage loses 248px.",
+      C1: "C custom 1 — drag the frame edges",
+      C1d: "In custom, the frame gets <b>handles on its right and bottom edges</b>. While dragging only the new outline follows (dark frame), and Android window size class guides <b>600 · Medium / 840 · Expanded</b> appear on the stage. Renders once on release. Dimension numbers stay typeable. The range ends (240 · 1600) show only as a stop — <b>the range is not always visible</b>. 1600dp is wider than the stage, so it fits after release.",
+      C2: "C custom 2 — the dimension line becomes a slider",
+      C2d: "In custom, the width and height dimension lines become <b>fixed-length sliders</b>. Ends are <b>240 · 1600</b>, so the range is always visible, with size class ticks (width 600 · 840, height 480 · 900). The number box rides the thumb and stays typeable. But the line <b>no longer matches the frame length</b>: it shows a position in the range, not a measurement.",
+      back: "PearlPreviews", name: "PearlListPreview", fn: "", fold: "Fold", rot: "Rotate", hinge: "Hinge line", fit: "Fit", custom: "Custom",
+      size: "Size", device: "Device", posture: "Posture", zoom: "Zoom", w: "Width", h: "Height", foldName: "unfolded", pickTag: "DrinkCard · DrinkCard.kt:31",
+    },
+  }[LANG];
+
+  const MINUS = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h8"/></svg>`;
+  const PLUS = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h8M8 4v8"/></svg>`;
+  const BACK = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg>`;
+  const SIZES = [["original", "@Preview", "360×780"], ["narrow", "320×640", ""], ["foldable", "673×841", ""], ["custom", T.custom, ""]];
+  // 기기 칸의 dp는 지금 툴팁이 말하는 것만 적는다 — 폴더블은 자세마다 달라 비운다
+  const DEVICES = [["s26", "S26", "360×780"], ["ipduo", "iPhone Duo", ""], ["fold8", "Fold8", ""], ["ultra", "Ultra", ""]];
+
+  const sel = state => state === "ok" ? "original" : "fold8";
+  const nav = state => `<div class="nav"><span class="brand">${ICON.glyph}</span><span class="sep"></span><span class="tile">${APP.tile}</span>
+    <span class="back">${BACK}${T.back}</span>
+    <div class="title"><b>${T.name}</b></div><span class="grow"></span>
+    <div class="tools">${pillHtml(state)}<button class="icon-btn">?</button></div></div>`;
+
+  function stage(state) {
+    if (state === "ok") return `<div class="bare"><img src="../img/pearl/PearlListPreview.jpg" alt="">
+      <div class="dim w"><input value="360"></div><div class="dim h"><input value="780"></div></div>`;
+    return `<div class="dev"><div class="scr"><img src="../img/pearl/PearlListPreview.jpg" alt=""><img src="../img/pearl/PearlListThemesPreview_2.jpg" alt=""><span class="hinge"></span>
+      <div class="pickbox" style="left:7%;top:24%;width:21%;height:14%"><span class="tag">${T.pickTag}</span></div></div>
+      <div class="dim w"><input value="720"></div><div class="dim h"><input value="780"></div></div>`;
+  }
+  const zoomGrp = state => `<div class="grp">${state === "busy" ? `<span class="it">${T.fit}</span>` : ""}<span class="it">${MINUS}</span><span class="it pct">${state === "busy" ? "150%" : "93%"}</span><span class="it">${PLUS}</span></div>`;
+  const sizeGrp = state => `<div class="grp">${SIZES.map(([k, l]) => `<span class="it${k === "original" ? " mono" : ""}${k === sel(state) ? " on" : ""}">${l}</span>`).join("")}<span class="vsep"></span>
+    ${DEVICES.map(([k, l]) => `<span class="it${k === sel(state) ? " on" : ""}">${l}</span>`).join("")}</div>`;
+  const postureGrp = state => state === "busy" ? `<div class="grp"><span class="it">${T.fold}</span><span class="it">${T.rot}</span><span class="it toggle on">${T.hinge}</span></div>` : "";
+
+  const A = state => `<div class="ws">${nav(state)}<div class="body">${railHtml()}<div class="center"><div class="stagebox">${stage(state)}</div>
+    <div class="bottom">${zoomGrp(state)}${sizeGrp(state)}${postureGrp(state)}</div></div></div></div>`;
+  const B = state => `<div class="ws">${nav(state)}<div class="body"><div class="center"><div class="stagebox">${stage(state)}</div>
+    <div class="bottom">${zoomGrp(state)}${sizeGrp(state)}${postureGrp(state)}</div></div></div></div>`;
+  // C의 라이트는 커스텀을 고른 순간 — 지금 크기 그대로 커스텀이 되고 치수선 폭 숫자에 커서가 간다(지금 동작)
+  const selC = state => state === "ok" ? "custom" : sel(state);
+  const stageC = state => state === "ok" ? stage(state).replace('<input value="360">', '<input value="412">').replace('<input value="780">', '<input value="915">') : stage(state);
+  // 커스텀 슬라이더 — 범위 240–1600dp가 막대 자체로 보인다. 폭에는 Android 창 크기 구간 경계(600 · 840dp)를 눈금으로 둔다
+  const MIN = 240, MAX = 1600, at = v => (v - MIN) / (MAX - MIN) * 100;
+  const slider = (label, v, ticks) => `<div class="sl"><div class="sl-h"><span>${label}</span><span class="v">${v}<small>dp</small></span></div>
+    <div class="sl-track"><span class="fill" style="width:${at(v)}%"></span><span class="thumb" style="left:${at(v)}%"></span>
+      ${ticks.map(([t, n]) => `<span class="tick" style="left:${at(t)}%"><i></i><em>${n}</em></span>`).join("")}</div>
+    <div class="sl-ends"><span>${MIN}</span><span>${MAX}</span></div></div>`;
+  const sliders = () => `<div class="sls">${slider(T.w, 412, [[600, "600"], [840, "840"]])}${slider(T.h, 915, [[480, "480"], [900, "900"]])}</div>`;
+  const C = state => `<div class="ws">${nav(state)}<div class="body"><div class="center"><div class="stagebox">${stageC(state)}</div></div>
+    <aside class="panel">
+      <div><h4>${T.zoom}</h4><div class="zrow"><span class="it">${MINUS}</span><span class="it pct">${state === "busy" ? "150%" : "93%"}</span><span class="it">${PLUS}</span><span class="grow"></span><span class="it">${T.fit}</span></div></div>
+      <div><h4>${T.size}</h4><div class="list">${SIZES.map(([k, l, d]) => `<span class="it${k === "original" ? " mono" : ""}${k === selC(state) ? " on" : ""}"><span>${l}</span><span class="d">${k === "custom" && state === "ok" ? "412×915" : d || ""}</span></span>`).join("")}</div>
+        ${state === "ok" ? sliders() : ""}
+</div>
+      <div><h4>${T.device}</h4><div class="list">${DEVICES.map(([k, l, d]) => `<span class="it${k === sel(state) ? " on" : ""}"><span>${l}</span><span class="d">${d}</span></span>`).join("")}</div></div>
+      ${state === "busy" ? `<div><h4>${T.posture}</h4><div class="seg"><span class="it">${T.fold}</span><span class="it">${T.rot}</span><span class="it toggle on">${T.hinge}</span></div></div>` : ""}
+    </aside></div></div>`;
+
+
+  // C1 — 틀의 오른쪽 · 아래 가장자리를 끈다. 끄는 동안 Android 창 크기 구간 경계가 무대에 세로 안내선으로 나온다
+  const K = 600 / 915; // 시안 그림의 높이 600px = 915dp
+  const stageC1 = state => `<div class="bare" style="width:${412 * K}px"><img src="../img/pearl/PearlListPreview.jpg" alt="" style="width:100%;height:600px;object-fit:cover;object-position:left top">
+      <div class="dim w"><input value="${state === "busy" ? 540 : 412}"></div><div class="dim h"><input value="915"></div>
+      <span class="grip r${state === "busy" ? " on" : ""}"></span><span class="grip b"></span>
+      ${state === "busy" ? `<span class="ghost" style="width:${540 * K}px;height:600px"></span>
+        <span class="guide" style="left:${600 * K}px"><em>600 · Medium</em></span><span class="guide" style="left:${840 * K}px"><em>840 · Expanded</em></span>` : ""}</div>`;
+  // C2 — 치수선 자리에 슬라이더. 양 끝이 240 · 1600, 눈금이 구간 경계. 숫자 칸은 손잡이를 따라다니고 그대로 칠 수 있다
+  const MIN2 = 240, MAX2 = 1600, at2 = v => (v - MIN2) / (MAX2 - MIN2) * 100;
+  const railW = v => `<div class="rail-w"><div class="sl-track"><span class="fill" style="width:${at2(v)}%"></span><span class="thumb" style="left:${at2(v)}%"></span>
+      <span class="tick" style="left:${at2(600)}%"><i></i><em>600</em></span><span class="tick" style="left:${at2(840)}%"><i></i><em>840</em></span>
+      <span class="badge" style="left:${at2(v)}%"><input value="${v}"></span></div><div class="ends"><span>${MIN2}</span><span>${MAX2}</span></div></div>`;
+  const railH = v => `<div class="rail-h"><div class="sl-track"><span class="fill" style="height:${at2(v)}%;bottom:auto;top:0"></span><span class="thumb" style="top:${at2(v)}%"></span>
+      <span class="tick" style="top:${at2(480)}%"><i></i><em>480</em></span><span class="tick" style="top:${at2(900)}%"><i></i><em>900</em></span>
+      <span class="badge" style="top:${at2(v)}%"><input value="${v}"></span></div><div class="ends"><span>${MIN2}</span><span>${MAX2}</span></div></div>`;
+  const stageC2 = state => `<div class="bare" style="width:${412 * K}px"><img src="../img/pearl/PearlListPreview.jpg" alt="" style="width:100%;height:600px;object-fit:cover;object-position:left top">
+      ${railW(state === "busy" ? 540 : 412)}${railH(915)}</div>`;
+  const panelC = state => `<aside class="panel">
+      <div><h4>${T.zoom}</h4><div class="zrow"><span class="it">${MINUS}</span><span class="it pct">93%</span><span class="it">${PLUS}</span><span class="grow"></span><span class="it">${T.fit}</span></div></div>
+      <div><h4>${T.size}</h4><div class="list">${SIZES.map(([k, l, d]) => `<span class="it${k === "original" ? " mono" : ""}${k === "custom" ? " on" : ""}"><span>${l}</span><span class="d">${k === "custom" ? (state === "busy" ? "540×915" : "412×915") : d || ""}</span></span>`).join("")}</div></div>
+      <div><h4>${T.device}</h4><div class="list">${DEVICES.map(([k, l, d]) => `<span class="it"><span>${l}</span><span class="d">${d}</span></span>`).join("")}</div></div></aside>`;
+  const C1 = state => `<div class="ws">${nav(state)}<div class="body"><div class="center"><div class="stagebox">${stageC1(state)}</div></div>${panelC(state)}</div></div>`;
+  const C2 = state => `<div class="ws">${nav(state)}<div class="body"><div class="center"><div class="stagebox">${stageC2(state)}</div></div>${panelC(state)}</div></div>`;
+  document.getElementById("h1").textContent = T.h1;
+  document.getElementById("note").textContent = T.note;
+  document.title = `${LANG === "ko" ? "구조 시안" : "Layout draft"} — ${T.h1}`;
+  if (new URLSearchParams(location.search).get("zoom") === "1") document.documentElement.style.setProperty("--draft-zoom", "1");
+  document.getElementById("root").innerHTML = [["C1", C1], ["C2", C2], ["A", A], ["B", B], ["C", C]].map(([k, f]) =>
+    `<section class="variant" id="${k}"><h2>${T[k]}</h2><p class="diff">${T[k + "d"]}</p>${frames(f)}</section>`).join("");
+  langButton();
+</script>
+</body>
+</html>

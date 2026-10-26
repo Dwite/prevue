@@ -1,0 +1,3 @@
+prevue paths
+
+Where the toolchain, dumps and outputs are, and how much space they use.

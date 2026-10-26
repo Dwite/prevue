@@ -1,0 +1,31 @@
+{
+  "status": 422,
+  "schema": {
+    "error": "string",
+    "matches": [
+      {
+        "at": "string",
+        "bounds": [
+          "number"
+        ],
+        "name": "string"
+      }
+    ],
+    "ok": "boolean"
+  },
+  "example": {
+    "ok": false,
+    "error": "Cards.kt:5 은 지금 화면에 없다",
+    "matches": [
+      {
+        "at": "Cards.kt:5#1",
+        "name": "Row",
+        "bounds": [
+          0,
+          3000,
+          100
+        ]
+      }
+    ]
+  }
+}

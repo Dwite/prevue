@@ -1,0 +1,19 @@
+prevue setup [--offline]
+
+Downloads and assembles the toolchain (renderer · layoutlib · Kotlin compiler). Once per machine. Needs the user's approval — the question to put is the ask in the health response.
+--offline builds only from what was already downloaded (start does the build after a plugin update itself). With a file or --variant it doesn't run and
+sends you to warmup (exit 2) — downloading from the external network and running Gradle in the target repository are separate approvals.
+On success {"ok":true,"toolchain":true,"alreadyHad":…} — alreadyHad means it was already there and finished in seconds. On failure, error and the Gradle output above it.
+
+If the person asks more
+  About 435MB, around 30 seconds. Downloads layoutlib · the Kotlin compiler from Google (dl.google.com) and Maven Central. No company repository credentials needed.
+  Kept in ~/.prevue/toolchain/ and not downloaded again on plugin updates. prevue paths shows where and how much.
+
+JDK
+  Follows JAVA_HOME; without it uses the JBR bundled with Android Studio (nothing to do if AS is installed). Give another runtime with PREVUE_JDK.
+  Verified on AS's bundled JBR 25.0.2. Plain JDK 25 is not verified.
+
+When it fails
+  The JDK is older than 21 — java -version. JAVA_HOME pointing at 17 is the default in the AGP world. Point it at AS's bundled JBR
+  The network is blocked — it must reach dl.google.com · repo1.maven.org. Behind a proxy, Gradle reads HTTP_PROXY
+  Otherwise the lines of the Gradle output starting with "> " are the cause — show them to the person as is

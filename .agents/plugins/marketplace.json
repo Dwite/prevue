@@ -1,0 +1,21 @@
+{
+  "name": "prevue",
+  "interface": {
+    "displayName": "Prevue"
+  },
+  "plugins": [
+    {
+      "name": "prevue",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/kakao/prevue.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

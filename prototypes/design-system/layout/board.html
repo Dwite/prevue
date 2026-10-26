@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 시안 — 보드</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="draft.css">
+<style>
+  /* 보드는 실제 기하(1440 창, 300/360 상한)로 그리고 줄여 보인다. ?zoom=1 이면 실제 크기 */
+  .win.wide { width: 1440px; height: 1300px; }
+  .win.narrow { height: 1500px; }
+  .frames .win { zoom: var(--draft-zoom, .55); }
+  .scroll { height: 100%; overflow: hidden; }
+
+  /* 낡음 띠 — 헤더 바로 아래에 붙는다. 블러 대신 불투명 면 위에 오류 바탕을 겹친다 */
+  .stale { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-8) var(--space-16);
+    background: linear-gradient(var(--error-container) 0 0), var(--surface); border-bottom: 1px solid var(--outline-variant); font: var(--type-body-small); }
+  .stale .row { display: flex; gap: var(--space-8); min-width: 0; }
+  .stale .head { color: var(--error); font-weight: var(--weight-semibold); white-space: nowrap; }
+  .stale .why { color: var(--on-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .bd { padding: var(--space-20) var(--space-24); }
+  .g { min-width: 160px; }
+  .g .gh { display: flex; align-items: baseline; gap: var(--space-8); min-width: 0; margin-bottom: var(--space-12); }
+  .g .gh b { font: var(--type-title-small); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .g .gh .m { color: var(--on-surface-variant); font: var(--type-label-small); white-space: nowrap; }
+  .g .gh .bad { color: var(--error); font: var(--type-label-small); white-space: nowrap; }
+  .g .row { display: flex; gap: var(--space-24); align-items: flex-start; }
+  .g.spill .row { flex-wrap: wrap; }
+
+  .cd { flex: none; }
+  .cd .st { position: relative; border-radius: var(--corner-medium); overflow: hidden; background: var(--surface-container); box-shadow: var(--elevation-1); }
+  .cd .st img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .cd.cursor .st { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+  .cd.live .st { outline: 2px solid var(--live); outline-offset: 2px; }
+  .cd .pickbox { position: absolute; border: 2px solid var(--pick); background: var(--pick-container); border-radius: var(--corner-small); }
+  .cd .ph { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--space-12); text-align: center; color: var(--on-surface-variant); font: var(--type-label-medium); background: var(--surface-container); }
+  .cd .ph.fail { color: var(--error); background: linear-gradient(var(--error-container) 0 0), var(--surface-container); align-content: center; gap: var(--space-4); }
+  .cd .ph.fail .why { color: var(--on-surface-variant); font: var(--type-code-small); word-break: break-all; }
+  .cd .ph.wait { opacity: .6; }
+  .cd .lb { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-6); min-width: 0; }
+  .cd .lb .nm { font: var(--type-label-large); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .cd .lb .sp { display: inline-flex; align-items: center; gap: var(--space-4); color: var(--on-surface-variant); font: var(--type-label-small); white-space: nowrap; overflow: hidden; min-width: 0; }
+  .cd .lb .grow { flex: 1; }
+  .cd .lb .go { width: var(--control-small); height: var(--control-small); flex: none; }
+  .cd .lb .livedot { width: 8px; height: 8px; border-radius: var(--corner-full); background: var(--live); flex: none; }
+  .cd .lb2 { color: var(--on-surface-variant); font: var(--type-label-small); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* 안 A — 묶음이 가로로 흐르고 넘치면 다음 줄로(지금 흐름) */
+  .A .bd { display: flex; flex-wrap: wrap; gap: var(--space-32) var(--space-40); align-items: flex-start; }
+  /* 안 B — 묶음마다 한 줄 전체. 머리는 구분선이 받친다 */
+  .B .bd { display: flex; flex-direction: column; gap: var(--space-32); }
+  .B .g .gh { padding-bottom: var(--space-8); border-bottom: 1px solid var(--outline-variant); }
+  .B .g .gh .m { margin-left: auto; }
+  /* 안 C — A의 흐름에 이름표를 그림 위 한 줄로(그림 위쪽에 붙는 머리표) */
+  .C .bd { display: flex; flex-wrap: wrap; gap: var(--space-32) var(--space-40); align-items: flex-start; }
+  .C .cd { display: flex; flex-direction: column-reverse; }
+  .C .cd .lb { margin: 0 0 var(--space-6); }
+  .C .cd .lb2 { display: none; }
+
+  @container (max-width: 639px) {
+    .bd { padding: var(--space-16); }
+    .A .bd, .C .bd { gap: var(--space-24); }
+  }
+</style>
+</head>
+<body>
+<div class="page-top">
+  <h1 id="h1"></h1><span class="note" id="note"></span><span class="grow"></span>
+  <a href="./">← 시안 목록</a><a id="lang" href="#"></a>
+</div>
+<div id="root"></div>
+<script src="draft.js"></script>
+<script>
+  const T = {
+    ko: {
+      h1: "보드", note: "화면 2/7 · 헤더는 확정한 안 C(파일 레일, 돋보기 없음) · 배율(D-62)은 지금 규칙대로, 레일을 뺀 폭으로 계산한다",
+      A: "안 A — 흐르는 묶음 (지금 흐름, 이름표를 두 줄로)",
+      Ad: "<b>눈이 가는 순서</b> 그림 → 이름표 → 묶음 머리. 묶음이 가로로 흘러 한 장짜리 함수가 많은 파일(Pearl)도 한 화면에 많이 든다. 머리는 함수 이름 옆에 <b>장 수 · 배율</b>을 붙여 오른쪽 끝으로 떨어지지 않는다. 이름표 첫 줄 <b>name= · 조작 버튼</b>, 둘째 줄 <b>크기 · 다크 · 글자 배율</b>. <b>영어</b> \"5 previews\"가 \"5장\"보다 길지만 머리 한 줄에 든다.",
+      B: "안 B — 묶음마다 한 줄 (구분선 위 머리)",
+      Bd: "<b>눈이 가는 순서</b> 묶음 머리 → 그림. 함수가 위에서 아래로 차례대로 읽혀 Storybook 목록 같다. 대신 <b>한 장짜리 함수도 한 줄을 다 차지</b>해 Pearl는 세로로 길어진다(같은 창에서 A의 두세 배). 묶음마다 폭이 넓어 배율이 덜 내려간다.",
+      C: "안 C — 이름표를 그림 위로",
+      Cd: "<b>눈이 가는 순서</b> 이름표 → 그림. 창 제목 막대처럼 이름이 먼저 읽히고, 그림 아래가 비어 다음 줄 묶음 머리와 붙지 않는다. 크기 · 다크 칸은 <b>툴팁으로만</b> 남아 늘 보이지 않는다.",
+      stHead: "PearlPreviews.kt", stWhy: "컴파일 실패 — 마지막으로 그린 그림입니다 · PearlScreen.kt:42 Unresolved reference: typeColor",
+      fail: "렌더 실패", failWhy: "NullPointerException · PearlScreen.kt:58", wait: "대기", live: "조작 중", play: "인터랙티브로 열기",
+      cards1: "1장", cards3: "3장", dark: "다크", font: "글자 1.5×", light: "라이트", large: "큰 글자",
+    },
+    en: {
+      h1: "Board", note: "Screen 2/7 · header is the confirmed option C (file rail, no magnifier) · board scale (D-62) uses today's rule on the width left of the rail",
+      A: "Option A — flowing groups (today's flow, two-line labels)",
+      Ad: "<b>Eye order</b> image → label → group head. Groups flow sideways, so files with many single-preview functions still fit one screen. The head keeps <b>count · scale</b> next to the name. Label line 1 <b>name= · interact button</b>, line 2 <b>size · dark · font scale</b>. <b>English</b> \"5 previews\" is longer than \"5장\" but fits one line.",
+      B: "Option B — one row per group (head on a divider)",
+      Bd: "<b>Eye order</b> group head → images. Functions read top to bottom like a Storybook list. But <b>a single-preview function takes a full row</b>, so Pearl grows 2–3× taller than A. Wider rows mean scale drops less.",
+      C: "Option C — label above the image",
+      Cd: "<b>Eye order</b> label → image. Reads like a window title bar, and the space under each image keeps the next group's head apart. Size and dark chips move <b>into the tooltip</b> and are no longer always visible.",
+      stHead: "PearlPreviews.kt", stWhy: "Compile failed — showing the last good render · PearlScreen.kt:42 Unresolved reference: typeColor",
+      fail: "Render failed", failWhy: "NullPointerException · PearlScreen.kt:58", wait: "Waiting", live: "Interacting", play: "Open interactive",
+      cards1: "1 preview", cards3: "3 previews", dark: "Dark", font: "Font 1.5×", light: "Light", large: "Large font",
+    },
+  }[LANG];
+
+  const PHONE = [360, 780];
+  const G = [
+    { fn: "PearlListPreview", cards: [{ img: "PearlListPreview", dp: PHONE }] },
+    { fn: "PearlListThemesPreview", cards: [
+      { img: "PearlListPreview", dp: PHONE, name: T.light },
+      { img: "PearlListThemesPreview_1", dp: PHONE, name: T.dark, tag: T.dark },
+      { img: "PearlListThemesPreview_2", dp: PHONE, name: T.large, tag: T.font }] },
+    { fn: "PearlErrorPreview", cards: [{ img: "PearlErrorPreview", dp: PHONE, fail: true }] },
+    { fn: "PearlLoadingPreview", cards: [{ img: "PearlLoadingPreview", dp: PHONE, wait: true }] },
+    { fn: "PearlLandscapePreview", cards: [{ img: "PearlLandscapePreview", dp: [780, 360] }] },
+    { fn: "PearlButtonPreview", cards: [{ img: "PearlButtonPreview", dp: [120, 120] }] },
+  ];
+  const PLAY = `<svg class="ic" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.5v9l7-4.5z"/></svg>`;
+  const PHONEIC = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="5" y="2" width="6" height="12" rx="1.2"/></svg>`;
+
+  function card(c, gi, ci, state) {
+    const cls = ["cd"];
+    if (state === "ok" && gi === 0) cls.push("cursor");
+    if (state === "busy" && gi === 1 && ci === 0) cls.push("live");
+    const spec = `${PHONEIC}${c.dp[0]}×${c.dp[1]}dp${c.tag ? ` · ${c.tag}` : ""}`;
+    let over = "";
+    if (state === "busy" && c.fail) over = `<div class="ph fail"><span>${T.fail}</span><span class="why">${T.failWhy}</span></div>`;
+    else if (state === "busy" && c.wait) over = `<div class="ph wait">${T.wait}</div>`;
+    const pick = state === "ok" && gi === 1 && ci === 1 ? `<div class="pickbox" style="left:6%;top:21%;width:44%;height:13%"></div>` : "";
+    const live = cls.includes("live") ? `<span class="livedot" title="${T.live}"></span>` : "";
+    const first = c.name ? `<span class="nm">${c.name}</span>` : `<span class="sp">${spec}</span>`;
+    return `<article class="${cls.join(" ")}" data-w="${c.dp[0]}" data-h="${c.dp[1]}" title="@Preview(widthDp = ${c.dp[0]}, heightDp = ${c.dp[1]})">
+      <div class="st"><img src="../img/pearl/${c.img}.jpg" alt="">${over}${pick}</div>
+      <div class="lb">${first}<span class="grow"></span>${live}<button class="icon-btn go" title="${T.play}">${PLAY}</button></div>
+      ${c.name ? `<div class="lb2">${spec}</div>` : ""}</article>`;
+  }
+  function board(state) {
+    return G.map((g, gi) => `<section class="g" data-gi="${gi}"><div class="gh"><b title="${g.fn}">${g.fn}</b><span class="m">${g.cards.length === 1 ? T.cards1 : T.cards3}<span class="sc"></span></span>
+      ${state === "busy" && g.cards.some(c => c.fail) ? `<span class="bad">● ${T.fail}</span>` : ""}</div>
+      <div class="row">${g.cards.map((c, ci) => card(c, gi, ci, state)).join("")}</div></section>`).join("");
+  }
+  const render = k => (state) => shellC(state, `<div class="scroll ${k}">
+    ${state === "busy" ? `<div class="stale"><div class="row"><span class="head">${T.stHead}</span><span class="why">${T.stWhy}</span></div></div>` : ""}
+    <div class="bd">${board(state)}</div></div>`);
+
+  // 지금 board.js 의 규칙 — 상한 300/360, 한 줄에 안 들면 맞게 줄이되 하한 0.25, 그래도 넘치면 줄 바꿈. 칸 = max(dp × 배율, 100)
+  function layout() {
+    for (const bd of document.querySelectorAll(".bd")) {
+      const narrow = !!bd.closest(".win.narrow"), avail = (narrow ? 390 : 1440 - 200 - 1) - (narrow ? 16 : 24) * 2 - 2;
+      for (const g of bd.querySelectorAll(".g")) {
+        const cs = [...g.querySelectorAll(".cd")], gap = 24;
+        const sum = cs.reduce((a, c) => a + +c.dataset.w, 0), room = avail - gap * (cs.length - 1);
+        let s = 300 / 360; const cut = sum * s > room;
+        if (cut) s = Math.max(.25, room / sum);
+        g.classList.toggle("spill", sum * s > room);
+        for (const c of cs) {
+          const w = Math.max(+c.dataset.w * s, 100), h = w * c.dataset.h / c.dataset.w;
+          c.style.width = w + "px"; c.querySelector(".st").style.height = h + "px";
+        }
+        g.querySelector(".sc").textContent = cut ? ` · ${Math.round(s * 100)}%` : "";
+      }
+    }
+  }
+
+  document.getElementById("h1").textContent = T.h1;
+  document.getElementById("note").textContent = T.note;
+  document.title = `${LANG === "ko" ? "구조 시안" : "Layout draft"} — ${T.h1}`;
+  document.getElementById("root").innerHTML = ["A", "B", "C"].map(k =>
+    `<section class="variant" id="${k}"><h2>${T[k]}</h2><p class="diff">${T[k + "d"]}</p>${frames(render(k))}</section>`).join("");
+  if (new URLSearchParams(location.search).get("zoom") === "1") document.documentElement.style.setProperty("--draft-zoom", "1");
+  layout();
+  langButton();
+</script>
+</body>
+</html>

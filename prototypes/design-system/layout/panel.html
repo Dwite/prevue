@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 시안 — 오른쪽 패널</title>
+<link rel="stylesheet" href="../../../viewer/tokens.css">
+<link rel="stylesheet" href="draft.css">
+<style>
+  /* 실제 기하(1440×900 창)로 그리고 줄여 보인다. ?zoom=1 이면 실제 크기 */
+  .win.wide { width: 1440px; height: 900px; }
+  .frames .win { zoom: var(--draft-zoom, .55); }
+
+  .nav { display: flex; align-items: center; gap: var(--space-12); height: 52px; flex: none; padding: 0 var(--space-16); border-bottom: 1px solid var(--outline-variant); position: relative; }
+  .nav .back { display: inline-flex; align-items: center; gap: var(--space-4); height: var(--control-large); padding: 0 var(--space-8) 0 var(--space-4); border-radius: var(--corner-medium); color: var(--on-surface-variant); font: var(--type-label-large); }
+  .nav .title { position: absolute; left: 50%; transform: translateX(-50%); font: var(--type-title-small); }
+  .nav .grow { flex: 1; }
+  .nav .tools { display: flex; align-items: center; gap: var(--space-4); }
+  .nav .tile { width: var(--control-medium); height: var(--control-medium); font: var(--type-label-large); }
+  .ws { display: flex; flex-direction: column; height: 100%; }
+  .ws .body { display: flex; flex: 1; min-height: 0; }
+  .stagebox { flex: 1; min-width: 0; display: grid; place-items: center; position: relative; }
+
+  /* 무대 — 그림은 시안용, 크기를 바꾼 렌더가 없어 같은 그림을 자른다 */
+  .bare { position: relative; outline: 2px solid var(--live); }
+  .bare img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+  .dev { position: relative; padding: 12px; border-radius: 36px; background: var(--device-body); box-shadow: var(--elevation-2); }
+  .dev .scr { position: relative; display: flex; border-radius: 24px; overflow: hidden; }
+  .dev .scr img { display: block; height: 560px; width: auto; }
+  .dev .hinge { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--device-crease-dark); }
+  .dim { position: absolute; display: grid; place-items: center; color: var(--on-surface-variant); }
+  .dim.w { left: 0; right: 0; top: -36px; height: 20px; border-left: 1px dashed var(--outline-variant); border-right: 1px dashed var(--outline-variant); }
+  .dim.w::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--outline-variant); }
+  .dim.h { top: 0; bottom: 0; left: -44px; width: 20px; border-top: 1px dashed var(--outline-variant); border-bottom: 1px dashed var(--outline-variant); }
+  .dim.h::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px solid var(--outline-variant); }
+  .dim .n { position: relative; min-width: 52px; height: var(--control-small); display: grid; place-items: center; padding: 0 var(--space-4); border: 1px solid var(--outline-variant); border-radius: var(--corner-small);
+    background: var(--surface); color: var(--on-surface); font: var(--type-code-small); }
+  .dim .n.ro { border-color: transparent; background: transparent; color: var(--on-surface-variant); }
+
+  /* 패널 공통 */
+  .panel { width: 264px; flex: none; border-left: 1px solid var(--outline-variant); padding: var(--space-16) var(--space-12); display: flex; flex-direction: column; gap: var(--space-20); overflow: hidden; background: var(--surface); }
+  .panel h4 { margin: 0 var(--space-4) var(--space-8); color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .it { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); height: var(--control-large); padding: 0 var(--space-8); border-radius: var(--corner-medium);
+    color: var(--on-surface-variant); font: var(--type-label-large); white-space: nowrap; }
+  .it .d { color: var(--on-surface-variant); font: var(--type-code-small); }
+  .it.mono { font: var(--type-code); }
+  .it.on { background: var(--primary-container); color: var(--on-surface); }
+  .it.toggle.on { background: var(--primary-container); color: var(--on-surface); }
+  .list { display: flex; flex-direction: column; gap: var(--space-2); }
+  .zrow { display: flex; align-items: center; gap: var(--space-2); }
+  .zrow .pct { min-width: 56px; justify-content: center; color: var(--on-surface); }
+  .zrow .grow { flex: 1; }
+  .ic { width: 16px; height: 16px; }
+
+  /* 슬라이더 */
+  .sl { display: grid; gap: var(--space-8); }
+  .sl-h { display: flex; justify-content: space-between; align-items: baseline; color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .sl-h .v { color: var(--on-surface); font: var(--type-code-small); }
+  .sl-h small { margin-left: var(--space-2); color: var(--on-surface-variant); }
+  .sl-track { position: relative; height: 4px; margin: var(--space-6) var(--space-8) var(--space-16); border-radius: var(--corner-full); background: var(--outline-variant); }
+  .sl-track .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: var(--corner-full); background: var(--on-surface-variant); }
+  .sl-track .thumb { position: absolute; top: 50%; width: 16px; height: 16px; transform: translate(-50%, -50%); border-radius: var(--corner-full);
+    background: var(--surface-container); border: 2px solid var(--on-surface); box-shadow: var(--elevation-1); }
+  .sl-track .tick { position: absolute; top: 0; transform: translateX(-50%); display: grid; justify-items: center; }
+  .sl-track .tick i { width: 1px; height: 10px; margin-top: -3px; background: var(--outline); }
+  .sl-track .tick em { margin-top: var(--space-2); color: var(--on-surface-variant); font: var(--type-code-small); font-style: normal; }
+  .sl-track .dot { position: absolute; top: 50%; width: 6px; height: 6px; transform: translate(-50%, -50%); border-radius: var(--corner-full); background: var(--outline); }
+  .sl.off { opacity: .5; }
+  .sl.off .thumb { border-color: var(--on-surface-variant); }
+  .note { color: var(--on-surface-variant); font: var(--type-body-small); margin: 0 var(--space-4); }
+
+  /* P2 — 칩 격자 */
+  .chips { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .chip { display: grid; gap: var(--space-2); padding: var(--space-8); border: 1px solid var(--outline-variant); border-radius: var(--corner-medium); }
+  .chip b { color: var(--on-surface); font: var(--type-label-large); }
+  .chip.mono b { font: var(--type-code); }
+  .chip span { color: var(--on-surface-variant); font: var(--type-code-small); }
+  .chip.on { background: var(--primary-container); border-color: var(--outline); }
+  .seg { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .foot { margin-top: auto; padding-top: var(--space-12); border-top: 1px solid var(--outline-variant); }
+
+  /* P3 — 인스펙터 줄 */
+  .row { display: grid; grid-template-columns: 40px 64px 1fr; align-items: center; gap: var(--space-8); }
+  .row .k { color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .row .num { height: var(--control-medium); display: grid; place-items: center; border: 1px solid var(--outline); border-radius: var(--corner-medium); background: var(--surface); color: var(--on-surface); font: var(--type-code-small); }
+  .row .num.ro { border-color: var(--outline-variant); color: var(--on-surface-variant); }
+  .row .sl-track { margin: 0 var(--space-8) 0 0; }
+  .select { display: flex; align-items: center; justify-content: space-between; height: var(--control-large); padding: 0 var(--space-8) 0 var(--space-12); border: 1px solid var(--outline); border-radius: var(--corner-medium); color: var(--on-surface); font: var(--type-label-large); }
+  /* P4 — 무대 가장자리의 슬라이더. 무대 위 가운데에 폭, 왼쪽 가운데에 높이. 길이는 정해져 있고 틀을 따라가지 않는다 */
+  .stagebox .edge-w { position: absolute; top: var(--space-16); left: 50%; width: 400px; transform: translateX(-50%); }
+  .stagebox .edge-h { position: absolute; left: var(--space-16); top: 50%; height: 400px; transform: translateY(-50%); width: 72px; }
+  .edge-w .sl-track { margin: var(--space-6) 0 var(--space-16); }
+  .edge-h .sl-h { display: grid; gap: var(--space-2); justify-items: start; }
+  .edge-h .vtrack { position: absolute; left: 12px; top: 44px; bottom: 20px; width: 4px; border-radius: var(--corner-full); background: var(--outline-variant); }
+  .edge-h .vtrack .fill { position: absolute; left: 0; right: 0; top: 0; border-radius: var(--corner-full); background: var(--on-surface-variant); }
+  .edge-h .vtrack .thumb { position: absolute; left: 50%; width: 16px; height: 16px; transform: translate(-50%, -50%); border-radius: var(--corner-full);
+    background: var(--surface-container); border: 2px solid var(--on-surface); box-shadow: var(--elevation-1); }
+  .edge-h .vtrack .tick { position: absolute; left: -3px; transform: translateY(-50%); display: flex; align-items: center; gap: var(--space-4); }
+  .edge-h .vtrack .tick i { width: 10px; height: 1px; background: var(--outline); }
+  .edge-h .vtrack .tick em { color: var(--on-surface-variant); font: var(--type-code-small); font-style: normal; }
+  .edge-h .vtrack .dot { position: absolute; left: 50%; width: 6px; height: 6px; transform: translate(-50%, -50%); border-radius: var(--corner-full); background: var(--outline); }
+  .edge-h .end { position: absolute; left: 24px; color: var(--on-surface-disabled); font: var(--type-code-small); transform: translateY(-50%); }
+  .edge-w .ends { display: flex; justify-content: space-between; color: var(--on-surface-disabled); font: var(--type-code-small); margin-top: calc(var(--space-12) * -1); }
+  .edge-off { opacity: .5; }
+  .nbox { display: inline-grid; place-items: center; min-width: 48px; height: var(--control-small); padding: 0 var(--space-4); border: 1px solid var(--outline); border-radius: var(--corner-small);
+    background: var(--surface); color: var(--on-surface); font: var(--type-code-small); }
+  .nbox.ro { border-color: transparent; background: transparent; }
+  .edge-w .sl-h { align-items: center; }
+  .edge-h .end { margin-top: var(--space-8); }
+  .edge-h .vtrack { top: 60px; }
+  /* P5 — 평소엔 치수선, 숫자를 누르면 그 자리에서 슬라이더가 된다 */
+  .bare.p5, .dev.p5 { overflow: visible; }
+  .sw { position: absolute; left: 50%; top: -72px; width: 360px; transform: translateX(-50%); }
+  .sh { position: absolute; top: 50%; left: -92px; height: 360px; width: 72px; transform: translateY(-50%); }
+  .sw .track, .sh .track { position: absolute; border-radius: var(--corner-full); background: var(--outline-variant); }
+  .sw .track { left: 0; right: 0; top: 36px; height: 4px; }
+  .sh .track { top: 0; bottom: 0; left: 52px; width: 4px; }
+  .sw .fill, .sh .fill { position: absolute; border-radius: var(--corner-full); background: var(--live); }
+  .sw .fill { left: 0; top: 0; bottom: 0; }
+  .sh .fill { left: 0; right: 0; top: 0; }
+  .sw .thumb, .sh .thumb { position: absolute; width: 16px; height: 16px; border-radius: var(--corner-full); background: var(--surface-container); border: 2px solid var(--live); box-shadow: var(--elevation-1); transform: translate(-50%, -50%); }
+  .sw .thumb { top: 50%; }
+  .sh .thumb { left: 50%; }
+  .sw .tick, .sh .tick { position: absolute; color: var(--on-surface-variant); font: var(--type-code-small); }
+  .sw .tick { top: 10px; transform: translateX(-50%); display: grid; justify-items: center; }
+  .sw .tick i { width: 1px; height: 10px; background: var(--outline); margin-top: -3px; }
+  .sh .tick { left: -3px; transform: translateY(-50%); display: flex; align-items: center; gap: var(--space-4); }
+  .sh .tick i { width: 10px; height: 1px; background: var(--outline); }
+  .sw .tick em, .sh .tick em { font-style: normal; }
+  .sh .tick { left: -3px; }
+  .sw .end, .sh .end { position: absolute; color: var(--on-surface-disabled); font: var(--type-code-small); }
+  .sw .end.a { left: 0; top: 48px; } .sw .end.b { right: 0; top: 48px; }
+  .sh .end.a { left: 0; top: -20px; } .sh .end.b { left: 0; bottom: -20px; }
+  .sw .badge, .sh .badge { position: absolute; }
+  .sw .badge { top: 0; transform: translateX(-50%); }
+  .sh .badge { left: 0; transform: translateY(-50%); }
+  .badge .nbox.focus { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+  .dim .n.click { cursor: pointer; }
+  .dim .n.click:hover { background: var(--state-hover); }
+  .hint { position: absolute; left: 50%; top: -64px; transform: translateX(-50%); padding: var(--space-4) var(--space-8); border-radius: var(--corner-small);
+    background: var(--primary); color: var(--on-primary); font: var(--type-label-small); white-space: nowrap; }
+  /* S1~S3 — 단말 크기가 바뀔 때 슬라이더를 어떻게 두나 */
+  .stagebox.abs { display: block; }
+  .fr { position: absolute; outline: 2px solid var(--live); background: var(--surface-container); overflow: hidden; }
+  .fr img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+  .rs { position: absolute; }
+  .rs .track { position: absolute; border-radius: var(--corner-full); background: var(--outline-variant); }
+  .rs .fill { position: absolute; border-radius: var(--corner-full); background: var(--live); }
+  .rs .thumb { position: absolute; width: 16px; height: 16px; border-radius: var(--corner-full); background: var(--surface-container); border: 2px solid var(--live); box-shadow: var(--elevation-1); transform: translate(-50%, -50%); }
+  .rs .lab { position: absolute; color: var(--on-surface-variant); font: var(--type-code-small); white-space: nowrap; }
+  .rs .lab.end { color: var(--on-surface-disabled); }
+  .rs .tk { position: absolute; background: var(--outline); }
+  .rs .nb { position: absolute; }
+  .cap { position: absolute; left: var(--space-16); bottom: var(--space-16); padding: var(--space-4) var(--space-8); border-radius: var(--corner-small); background: var(--surface-container-high); color: var(--on-surface-variant); font: var(--type-label-medium); }
+  /* 새 안 4 — 쉴 때는 치수선, 숫자를 누르면 슬라이더. 슬라이더는 틀에서 32px 떨어지고, 숫자 칸은 머리에 고정, 눈금은 바깥쪽 */
+  .n4 { position: absolute; }
+  .n4 .box { position: absolute; display: inline-flex; align-items: baseline; gap: var(--space-2); height: var(--control-medium); padding: 0 var(--space-8);
+    border: 1px solid var(--outline); border-radius: var(--corner-medium); background: var(--surface); color: var(--on-surface); font: var(--type-code); align-items: center; }
+  .n4 .box small { color: var(--on-surface-variant); font: var(--type-code-small); }
+  .n4 .box.focus { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+  .n4 .key { position: absolute; color: var(--on-surface-variant); font: var(--type-label-medium); }
+  .n4 .trk { position: absolute; border-radius: var(--corner-full); background: var(--outline-variant); }
+  .n4 .fil { position: absolute; border-radius: var(--corner-full); background: var(--live); }
+  .n4 .thm { position: absolute; width: 18px; height: 18px; border-radius: var(--corner-full); background: var(--surface-container); border: 2px solid var(--live); box-shadow: var(--elevation-2); transform: translate(-50%, -50%); }
+  .n4 .tk { position: absolute; background: var(--outline); }
+  .n4 .tl { position: absolute; color: var(--on-surface-variant); font: var(--type-code-small); white-space: nowrap; }
+  .n4 .tl.end { color: var(--on-surface-disabled); }
+  .n4dim { position: absolute; color: var(--on-surface-variant); }
+  .n4dim .ln { position: absolute; background: var(--outline-variant); }
+  .n4dim .n { position: absolute; transform: translate(-50%, -50%); min-width: 48px; height: var(--control-small); display: grid; place-items: center; padding: 0 var(--space-6);
+    border: 1px solid var(--outline-variant); border-radius: var(--corner-small); background: var(--surface); color: var(--on-surface); font: var(--type-code-small); }
+  .n4dim .n:hover, .n4dim .n.hover { border-color: var(--outline); background: var(--state-hover); }
+  .tip { position: absolute; transform: translate(-50%, -100%); padding: var(--space-4) var(--space-8); border-radius: var(--corner-small); background: var(--primary); color: var(--on-primary); font: var(--type-label-small); white-space: nowrap; }
+  .figs { display: grid; grid-template-columns: repeat(2, max-content); gap: var(--space-24); }
+  .figs .win { zoom: var(--draft-zoom, .5); }
+  .n4 .key { white-space: nowrap; }
+  .select .d { color: var(--on-surface-variant); font: var(--type-code-small); margin-left: auto; margin-right: var(--space-8); }
+</style>
+</head>
+<body>
+<div class="page-top">
+  <h1 id="h1"></h1><span class="note" id="note"></span><span class="grow"></span>
+  <a href="./">← 시안 목록</a><a id="lang" href="#"></a>
+</div>
+<div id="root"></div>
+<script src="draft.js"></script>
+<script>
+  const T = {
+    ko: {
+      h1: "오른쪽 패널", note: "작업 공간 C(오른쪽 패널) 확정 뒤 · 라이트는 커스텀 412×915, 다크는 Fold8 펼침 · 슬라이더는 끄는 동안 틀만, 놓을 때 한 번 그린다",
+      P1: "안 1 — 목록, 커스텀을 고르면 슬라이더가 펼쳐진다",
+      P1d: "<b>눈이 가는 순서</b> 크기 목록 → 기기 목록. 고를 것이 위에서 아래로 한 줄씩. 슬라이더는 <b>커스텀일 때만</b> 그 행 아래에 펼쳐져 평소에는 조용하다. 숫자는 무대의 치수선에서 친다. 기기를 고르면 슬라이더가 접힌다.",
+      P2: "안 2 — 슬라이더가 늘 맨 위, 프리셋은 칩",
+      P2d: "<b>눈이 가는 순서</b> 슬라이더 → 칩. 폭 · 높이 슬라이더가 <b>늘 보이고</b> 지금 크기가 범위의 어디인지 말한다. 프리셋 · 기기의 자리는 막대 위 점으로 보인다. 슬라이더를 끌면 그 자리에서 커스텀이 된다(커스텀 칸을 누르는 것과 같은 동작). 기기를 고른 동안은 슬라이더가 흐려지고 읽기만 한다(지금 치수선처럼). 칩에 dp가 함께 적힌다. 확대는 맨 아래.",
+      P3: "안 3 — 인스펙터 줄, 프리셋은 고르기 상자",
+      P3d: "<b>눈이 가는 순서</b> 고르기 상자 → 폭 · 높이 줄. 크기와 기기를 <b>고르기 상자 하나</b>에 넣어 패널이 가장 짧다. 폭 · 높이 줄은 숫자 칸 + 슬라이더. 대신 프리셋이 <b>한눈에 보이지 않고</b>(상자를 열어야 한다), 숫자 칸이 치수선과 <b>두 곳</b>이 된다 — 치수선을 읽기 전용으로 돌리면 고정 동작 \"치수선 직접 입력\"을 다시 열어야 한다.",
+      P5: "안 5 — 평소엔 치수선, 숫자를 누르면 그 자리에서 슬라이더",
+      P5d: "<b>라이트 창</b>은 쉬는 모습이다 — 틀에는 지금처럼 치수선과 숫자만 있다. 숫자를 누르면(<b>다크 창</b>) 그 치수선이 <b>제자리에서 슬라이더로 바뀌고</b> 지금 크기 그대로 커스텀이 된다. 폭 · 높이가 함께 바뀌고 누른 쪽 숫자 칸에 커서가 간다. 양 끝 240 · 1600과 구간 눈금(폭 600 · 840, 높이 480 · 900)이 보이고, 숫자 칸은 손잡이를 따라다니며 그대로 칠 수 있다. 끄는 동안은 틀만, 놓을 때 한 번 그린다. 패널에서 다른 크기 · 기기를 고르면 다시 치수선이 된다. 슬라이더의 파랑은 조작 중이라서다(D-93).",
+      clickHint: "숫자를 누르면 커스텀",
+      N4: "안 4 — 쉴 때는 치수선, 숫자를 누르면 그 자리에서 슬라이더",
+      N4d: "<b>쉴 때</b>(① 라이트) 틀에는 지금처럼 치수선과 숫자만 있다. 숫자에 호버하면 안내가 뜨고, 누르면(② 다크) 지금 크기 그대로 <b>커스텀</b>이 되며 폭 · 높이 치수선이 함께 <b>슬라이더</b>로 바뀐다. 누른 쪽 숫자 칸에 커서가 간다. 슬라이더는 틀에서 <b>32px</b> 떨어지고, 숫자 칸은 슬라이더 머리에 고정이라 손잡이와 겹치지 않으며, 눈금(폭 600 · 840, 높이 480 · 900)과 끝(240 · 1600)은 <b>바깥쪽</b>에 있다. 길이는 늘 360px로 같고 틀의 가운데에 맞춰 붙는다 — 작은 틀(③)이면 틀보다 길고, 큰 틀(④)이면 짧다. <b>끄는 동안은 그 자리에 멈추고</b>, 놓아서 새 그림이 오면 맞춤 배율과 함께 틀 옆으로 다시 붙는다. 패널에서 다른 크기를 고르면 치수선으로 돌아간다.",
+      f_rest: "① 쉴 때 · 라이트 · @Preview 360×780", f_custom: "② 폭 숫자를 누른 뒤 · 다크 · 커스텀 412×915", f_small: "③ 작은 틀 · 라이트 · 280×560", f_large: "④ 큰 틀 · 다크 · 1280×800",
+      cap_rest: z => `맞춤 ${z}%`, cap_custom: z => `커스텀 · 맞춤 ${z}%`, cap_small: z => `커스텀 · 맞춤 ${z}%`, cap_large: z => `커스텀 · 맞춤 ${z}%`,
+      S1: "슬라이더 크기 1 — 무대에 고정, 틀은 맞춤",
+      S1d: "슬라이더는 <b>길이와 자리가 늘 같다</b>(무대 위 가운데 · 왼쪽 가운데). 틀만 커지고 작아지며, 놓으면 맞춤 배율이 다시 정해져 틀이 무대 안에 든다. 끄는 동안 손잡이가 손 밑에서 달아나지 않는다. 대신 슬라이더와 틀이 서로 떨어져 있어 <b>어느 숫자가 어느 변인지</b>는 위치로만 읽힌다. 라이트는 320×640, 다크는 1200×800.",
+      S2: "슬라이더 크기 2 — 실제 축척의 자, 손잡이 = 틀 가장자리",
+      S2d: "슬라이더가 <b>무대 축척 그대로의 자</b>다. 틀의 왼쪽 위가 원점으로 고정되고, 손잡이가 곧 틀의 오른쪽 · 아래 가장자리다 — 끄는 것과 틀이 자라는 것이 한 몸이다. 범위 240 · 1600도 자 위의 실제 길이로 보인다. 대가: 1600dp 전체가 들어가도록 <b>커스텀 동안 배율이 낮아지고</b>(이 그림 50%), 틀이 가운데가 아니라 왼쪽 위에 선다. 높이 1600은 창에 다 들지 않아 막대 끝이 잘린다.",
+      S3: "슬라이더 크기 3 — 틀에 붙어 다니되 끄는 동안은 멈춤",
+      S3d: "쉴 때 슬라이더는 <b>틀 바로 위 · 왼쪽에 붙고 길이는 고정</b>(360px)이다. 작은 틀이면 슬라이더가 틀보다 길고, 큰 틀이면 짧다. 끄는 동안은 그 자리에 <b>멈춰</b> 손잡이가 달아나지 않고, 놓고 새 그림이 오면 맞춤 배율과 함께 틀 옆으로 다시 붙는다(한 번 움직임). 숫자와 변의 짝이 가장 잘 읽힌다.",
+      capS1: z => `맞춤 ${z}% · 막대는 그대로`, capS2: "커스텀 동안 50% · 왼쪽 위 원점", capS3: "막대가 틀을 따라 붙는다",
+      P4: "안 4 — 슬라이더는 무대 위 · 왼쪽, 패널은 칩",
+      P4d: "<b>눈이 가는 순서</b> 그림 → 위 · 왼쪽 슬라이더 → 패널. 폭 슬라이더가 무대 위 가운데에, 높이 슬라이더가 무대 왼쪽에 <b>길이를 정해</b> 선다(틀을 따라가지 않는다). 끄는 손과 바뀌는 틀이 <b>같은 무대</b>에 있어 눈을 옮기지 않는다. 범위 240 · 1600과 구간 눈금(폭 600 · 840, 높이 480 · 900), 프리셋 · 기기 점이 늘 보인다. 치수선은 걷었다 — 슬라이더와 같은 값을 두 번 말했다. 숫자는 <b>슬라이더 머리의 칸</b>에서 직접 친다(240–1600, Enter로 적용). 패널은 칩 · 자세 · 확대만 남아 짧다. 기기를 고르면 슬라이더가 흐려진다(다크 창). 대가: 무대 위 · 왼쪽 약 72px씩을 슬라이더가 쓰고, 틀이 크면(Ultra · 확대) 슬라이더와 가까워진다.",
+      zoom: "확대", size: "크기", device: "기기", posture: "기기 자세", fit: "맞춤", custom: "커스텀", w: "폭", h: "높이",
+      fold: "접기", rot: "돌리기", hinge: "힌지 선", back: "PearlPreviews", name: "PearlListPreview", deviceLock: "기기 크기는 기기가 정한다 — 바꾸려면 커스텀으로",
+      preset: "크기 · 기기",
+    },
+    en: {
+      h1: "Right panel", note: "After confirming workspace C (right panel) · light: custom 412×915, dark: Fold8 unfolded · sliders move only the frame while dragging and render once on release",
+      P1: "Option 1 — list; sliders open when Custom is picked",
+      P1d: "<b>Eye order</b> size list → device list. One row per choice. Sliders open <b>only in custom</b>, under that row, and stay quiet otherwise. Numbers are typed on the stage dimension lines. Picking a device folds the sliders.",
+      P2: "Option 2 — sliders always on top, presets as chips",
+      P2d: "<b>Eye order</b> sliders → chips. Width and height sliders are <b>always visible</b> and show where the current size sits in the range. Preset and device sizes show as dots on the track. Dragging turns the size into custom on the spot (same as picking Custom). With a device picked, sliders dim and are read-only (like today's dimension lines). Chips show dp. Zoom sits at the bottom.",
+      P3: "Option 3 — inspector rows, presets in a select box",
+      P3d: "<b>Eye order</b> select → width/height rows. Size and device share <b>one select box</b>, so the panel is shortest. Width/height rows are a number box plus a slider. But presets are <b>not visible at a glance</b>, and numbers live in <b>two places</b> (panel and dimension lines); making the lines read-only reopens the fixed behavior \"type on the dimension lines\".",
+      P5: "Option 5 — dimension lines at rest; click a number and it becomes a slider",
+      P5d: "The <b>light frame</b> is at rest: the frame has only dimension lines and numbers, as today. Clicking a number (<b>dark frame</b>) turns that line <b>into a slider in place</b> and switches to custom at the current size. Width and height switch together, and the cursor lands in the clicked number. Ends 240 · 1600 and size class ticks show; the number box rides the thumb and stays typeable. Dragging moves only the frame; it renders once on release. Picking another size or device in the panel turns them back into dimension lines. The slider is blue because it is being operated (D-93).",
+      clickHint: "Click a number for custom",
+      N4: "Option 4 — dimension lines at rest; click a number and it becomes a slider in place",
+      N4d: "<b>At rest</b> (① light) the frame has only dimension lines and numbers. Hovering a number shows a hint; clicking it (② dark) switches to <b>custom</b> at the current size and turns both lines into <b>sliders</b>, with the cursor in the clicked number. Sliders sit <b>32px</b> from the frame; the number box is fixed at the slider head so it never covers the thumb; ticks (width 600 · 840, height 480 · 900) and ends (240 · 1600) sit <b>outside</b>. Length is always 360px, centered on the frame: longer than a small frame (③), shorter than a large one (④). <b>While dragging they stay put</b>; after release and the new image they re-attach beside the frame with the fit zoom. Picking another size in the panel returns to dimension lines.",
+      f_rest: "① at rest · light · @Preview 360×780", f_custom: "② after clicking width · dark · custom 412×915", f_small: "③ small frame · light · 280×560", f_large: "④ large frame · dark · 1280×800",
+      cap_rest: z => `Fit ${z}%`, cap_custom: z => `Custom · fit ${z}%`, cap_small: z => `Custom · fit ${z}%`, cap_large: z => `Custom · fit ${z}%`,
+      S1: "Slider size 1 — fixed on the stage, frame fits",
+      S1d: "Sliders keep <b>the same length and spot</b> (stage top center, left middle). Only the frame grows and shrinks; on release the fit zoom recomputes so the frame fits. The thumb never runs from the hand. But slider and frame are apart, so <b>which number is which edge</b> reads only by position. Light 320×640, dark 1200×800.",
+      S2: "Slider size 2 — a true-scale ruler; the thumb is the frame edge",
+      S2d: "The slider is <b>a ruler at stage scale</b>. The frame's top-left is a fixed origin and the thumb is the frame's right/bottom edge: dragging and growing are one motion. The 240 · 1600 range shows as real length. Cost: to fit 1600dp, <b>zoom drops while in custom</b> (50% here) and the frame sits top-left, not centered. Height 1600 does not fit the window, so that track is cut.",
+      S3: "Slider size 3 — follows the frame, frozen while dragging",
+      S3d: "At rest the sliders <b>hug the frame's top and left at a fixed length</b> (360px). A small frame has longer sliders, a large one shorter. While dragging they <b>stay put</b> so the thumb never runs; after release and the new image, they re-attach beside the frame with the fit zoom (one move). Number-to-edge pairing reads best.",
+      capS1: z => `Fit ${z}% · bars stay`, capS2: "50% while custom · top-left origin", capS3: "Bars follow the frame",
+      P4: "Option 4 — sliders on the stage top and left, chips in the panel",
+      P4d: "<b>Eye order</b> image → top/left sliders → panel. The width slider sits at the top center of the stage and the height slider on its left, at <b>fixed length</b> (they do not follow the frame). The hand and the changing frame share <b>one stage</b>. Range 240 · 1600, size class ticks and preset/device dots are always visible. Dimension lines are removed (they repeated the slider value). Exact numbers are typed in the <b>box on each slider</b> (240–1600, Enter applies). The panel keeps only chips, posture and zoom. With a device picked the sliders dim (dark frame). Cost: the sliders take about 72px at the top and left, and a large frame (Ultra, zoomed) comes close to them.",
+      zoom: "Zoom", size: "Size", device: "Device", posture: "Posture", fit: "Fit", custom: "Custom", w: "Width", h: "Height",
+      fold: "Fold", rot: "Rotate", hinge: "Hinge line", back: "PearlPreviews", name: "PearlListPreview", deviceLock: "The device sets its size. Pick Custom to change it",
+      preset: "Size · device",
+    },
+  }[LANG];
+
+  const MINUS = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h8"/></svg>`;
+  const PLUS = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h8M8 4v8"/></svg>`;
+  const BACK = `<svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg>`;
+  const SIZES = [["original", "@Preview", "360×780"], ["narrow", "320×640", "320×640"], ["foldable", "673×841", "673×841"], ["custom", T.custom, ""]];
+  // 기기 칸의 dp는 지금 툴팁이 말하는 것만 적는다 — 폴더블은 자세마다 달라 비운다
+  const DEVICES = [["s26", "S26", "360×780"], ["ipduo", "iPhone Duo", ""], ["fold8", "Fold8", ""], ["ultra", "Ultra", ""]];
+  const MIN = 240, MAX = 1600, at = v => (v - MIN) / (MAX - MIN) * 100;
+  const isCustom = s => s === "ok";
+  const sel = s => isCustom(s) ? "custom" : "fold8";
+  const W = s => isCustom(s) ? 412 : 720, H = s => isCustom(s) ? 915 : 780;
+
+  const nav = state => `<div class="nav"><span class="brand">${ICON.glyph}</span><span class="sep"></span><span class="tile">${APP.tile}</span>
+    <span class="back">${BACK}${T.back}</span><div class="title">${T.name}</div><span class="grow"></span>
+    <div class="tools">${pillHtml(state)}<button class="icon-btn">?</button></div></div>`;
+  const K = 600 / 915;
+  const stage = (state, roDims) => isCustom(state)
+    ? `<div class="bare" style="width:${412 * K}px;height:600px"><img src="../img/pearl/PearlListPreview.jpg" alt="">
+        <div class="dim w"><span class="n${roDims ? " ro" : ""}">412</span></div><div class="dim h"><span class="n${roDims ? " ro" : ""}">915</span></div></div>`
+    : `<div class="dev"><div class="scr"><img src="../img/pearl/PearlListPreview.jpg" alt=""><img src="../img/pearl/PearlListThemesPreview_2.jpg" alt=""><span class="hinge"></span></div>
+        <div class="dim w"><span class="n ro">720</span></div><div class="dim h"><span class="n ro">780</span></div></div>`;
+
+  const slider = (label, v, ticks, dots, off) => `<div class="sl${off ? " off" : ""}"><div class="sl-h"><span>${label}</span><span class="v">${v}<small>dp</small></span></div>
+    <div class="sl-track"><span class="fill" style="width:${at(v)}%"></span>${dots.map(d => `<span class="dot" style="left:${at(d)}%"></span>`).join("")}<span class="thumb" style="left:${at(v)}%"></span>
+      ${ticks.map(t => `<span class="tick" style="left:${at(t)}%"><i></i><em>${t}</em></span>`).join("")}</div></div>`;
+  const zoomRow = state => `<div class="zrow"><span class="it">${MINUS}</span><span class="it pct">93%</span><span class="it">${PLUS}</span><span class="grow"></span><span class="it">${T.fit}</span></div>`;
+  const postureSeg = state => isCustom(state) ? "" : `<div><h4>${T.posture}</h4><div class="seg"><span class="it">${T.fold}</span><span class="it">${T.rot}</span><span class="it toggle on">${T.hinge}</span></div></div>`;
+
+  // 안 1 — 목록, 커스텀이면 그 행 아래 슬라이더
+  const P1 = state => `<aside class="panel">
+    <div><h4>${T.zoom}</h4>${zoomRow(state)}</div>
+    <div><h4>${T.size}</h4><div class="list">${SIZES.map(([k, l, d]) => `<span class="it${k === "original" ? " mono" : ""}${k === sel(state) ? " on" : ""}"><span>${l}</span><span class="d">${k === "custom" && isCustom(state) ? "412×915" : d}</span></span>
+      ${k === "custom" && isCustom(state) ? `<div style="padding: var(--space-8) var(--space-4) 0">${slider(T.w, 412, [600, 840], [], false)}${slider(T.h, 915, [480, 900], [], false)}</div>` : ""}`).join("")}</div></div>
+    <div><h4>${T.device}</h4><div class="list">${DEVICES.map(([k, l, d]) => `<span class="it${k === sel(state) ? " on" : ""}"><span>${l}</span><span class="d">${d}</span></span>`).join("")}</div></div>
+    ${postureSeg(state)}</aside>`;
+
+  // 안 2 — 슬라이더가 늘 위, 프리셋 · 기기는 칩, 확대는 맨 아래
+  const P2 = state => `<aside class="panel">
+    <div><h4>${T.size}</h4>${slider(T.w, W(state), [600, 840], [320, 360, 673], !isCustom(state))}${slider(T.h, H(state), [480, 900], [640, 780, 841], !isCustom(state))}
+      ${isCustom(state) ? "" : `<p class="note">${T.deviceLock}</p>`}</div>
+    <div class="chips">${SIZES.map(([k, l, d]) => `<span class="chip${k === "original" ? " mono" : ""}${k === sel(state) ? " on" : ""}"><b>${l}</b><span>${k === "custom" ? (isCustom(state) ? "412×915" : "—") : d}</span></span>`).join("")}</div>
+    <div><h4>${T.device}</h4><div class="chips">${DEVICES.map(([k, l, d]) => `<span class="chip${k === sel(state) ? " on" : ""}"><b>${l}</b><span>${d || "—"}</span></span>`).join("")}</div></div>
+    ${postureSeg(state)}
+    <div class="foot">${zoomRow(state)}</div></aside>`;
+
+  // 안 3 — 인스펙터 줄
+  const row = (k, v, ticks, off) => `<div class="row"><span class="k">${k}</span><span class="num${off ? " ro" : ""}">${v}</span>
+    <div class="sl-track"${off ? ' style="opacity:.5"' : ""}><span class="fill" style="width:${at(v)}%"></span><span class="thumb" style="left:${at(v)}%"></span>${ticks.map(t => `<span class="tick" style="left:${at(t)}%"><i></i></span>`).join("")}</div></div>`;
+  const P3 = state => `<aside class="panel">
+    <div><h4>${T.zoom}</h4>${zoomRow(state)}</div>
+    <div><h4>${T.preset}</h4><span class="select">${isCustom(state) ? T.custom : "Fold8"}<span class="d">${isCustom(state) ? "" : ""}</span>${ICON.chevron}</span></div>
+    <div style="display:grid;gap:var(--space-12)">${row(T.w, W(state), [600, 840], !isCustom(state))}${row(T.h, H(state), [480, 900], !isCustom(state))}</div>
+    ${postureSeg(state)}</aside>`;
+
+  // 안 4 — 슬라이더는 무대 가장자리, 패널은 칩만
+  const numBox = (v, on) => `<span class="nbox${on ? "" : " ro"}">${v}</span><small>dp</small>`;
+  const edgeW = state => `<div class="edge-w${isCustom(state) ? "" : " edge-off"}">${slider(T.w, W(state), [600, 840], [320, 360, 673], false)
+    .replace('class="sl"', 'class="sl" style="gap:0"').replace(/<span class="v">.*?<\/small><\/span>/, `<span class="v">${numBox(W(state), isCustom(state))}</span>`)}<div class="ends"><span>${MIN}</span><span>${MAX}</span></div></div>`;
+  const edgeH = state => { const v = H(state); return `<div class="edge-h${isCustom(state) ? "" : " edge-off"}"><div class="sl-h"><span>${T.h}</span><span class="v">${numBox(v, isCustom(state))}</span></div>
+    <div class="vtrack"><span class="fill" style="height:${at(v)}%"></span>${[640, 780, 841].map(d => `<span class="dot" style="top:${at(d)}%"></span>`).join("")}
+      ${[480, 900].map(t => `<span class="tick" style="top:${at(t)}%"><i></i><em>${t}</em></span>`).join("")}<span class="thumb" style="top:${at(v)}%"></span></div>
+    <span class="end" style="top:60px">${MIN}</span><span class="end" style="top:calc(100% - 20px)">${MAX}</span></div>`; };
+  const P4panel = state => `<aside class="panel">
+    <div><h4>${T.size}</h4><div class="chips">${SIZES.map(([k, l, d]) => `<span class="chip${k === "original" ? " mono" : ""}${k === sel(state) ? " on" : ""}"><b>${l}</b><span>${k === "custom" ? "240–1600" : d}</span></span>`).join("")}</div>
+      ${isCustom(state) ? "" : `<p class="note" style="margin-top:var(--space-8)">${T.deviceLock}</p>`}</div>
+    <div><h4>${T.device}</h4><div class="chips">${DEVICES.map(([k, l, d]) => `<span class="chip${k === sel(state) ? " on" : ""}"><b>${l}</b><span>${d || "—"}</span></span>`).join("")}</div></div>
+    ${postureSeg(state)}
+    <div class="foot">${zoomRow(state)}</div></aside>`;
+  // 치수선과 슬라이더가 같은 값을 두 번 말했다 — 안 4는 치수선을 걷고 숫자 입력을 슬라이더 머리로 옮긴다
+  const stageBare = state => stage(state).replace(/<div class="dim w">.*?<\/div><div class="dim h">.*?<\/div>/, "");
+  const P4 = state => `<div class="ws">${nav(state)}<div class="body"><div class="stagebox">${edgeW(state)}${edgeH(state)}${stageBare(state)}</div>${P4panel(state)}</div></div>`;
+
+
+  // 안 5 — 평소엔 치수선(라이트), 숫자를 누르면 그 자리에서 슬라이더로 바뀌며 커스텀(다크)
+  const MIN5 = 240, MAX5 = 1600, at5 = v => (v - MIN5) / (MAX5 - MIN5) * 100;
+  const sw = v => `<div class="sw"><div class="track"><span class="fill" style="width:${at5(v)}%"></span>
+      ${[600, 840].map(t => `<span class="tick" style="left:${at5(t)}%"><i></i><em>${t}</em></span>`).join("")}<span class="thumb" style="left:${at5(v)}%"></span></div>
+      <span class="badge" style="left:${at5(v)}%"><span class="nbox focus">${v}</span></span><span class="end a">${MIN5}</span><span class="end b">${MAX5}</span></div>`;
+  const sh = v => `<div class="sh"><div class="track"><span class="fill" style="height:${at5(v)}%"></span>
+      ${[480, 900].map(t => `<span class="tick" style="top:${at5(t)}%"><i></i><em>${t}</em></span>`).join("")}<span class="thumb" style="top:${at5(v)}%"></span></div>
+      <span class="badge" style="top:${at5(v)}%"><span class="nbox">${v}</span></span><span class="end a">${MIN5}</span><span class="end b">${MAX5}</span></div>`;
+  const stage5 = state => isCustom(state)
+    ? `<div class="bare p5" style="width:${360 * K}px;height:${780 * K}px"><img src="../img/pearl/PearlListPreview.jpg" alt="">
+        <div class="dim w"><span class="n click">360</span></div><div class="dim h"><span class="n click">780</span></div>
+        <span class="hint">${T.clickHint}</span></div>`
+    : `<div class="bare p5" style="width:${412 * K}px;height:600px"><img src="../img/pearl/PearlListPreview.jpg" alt="">${sw(412)}${sh(915)}</div>`;
+  const sel5 = s => isCustom(s) ? "original" : "custom";
+  const P5panel = state => `<aside class="panel">
+    <div><h4>${T.size}</h4><div class="chips">${SIZES.map(([k, l, d]) => `<span class="chip${k === "original" ? " mono" : ""}${k === sel5(state) ? " on" : ""}"><b>${l}</b><span>${k === "custom" ? "240–1600" : d}</span></span>`).join("")}</div></div>
+    <div><h4>${T.device}</h4><div class="chips">${DEVICES.map(([k, l, d]) => `<span class="chip"><b>${l}</b><span>${d || "—"}</span></span>`).join("")}</div></div>
+    <div class="foot">${zoomRow(state)}</div></aside>`;
+  const P5 = state => `<div class="ws">${nav(state)}<div class="body"><div class="stagebox">${stage5(state)}</div>${P5panel(state)}</div></div>`;
+
+  // 단말 크기 비교 — 라이트 창은 작게(320×640), 다크 창은 크게(1200×800)
+  const SM = { w: 320, h: 640 }, LG = { w: 1200, h: 800 };
+  const dimsOf = state => isCustom(state) ? SM : LG;
+  const pane = { w: 1440 - 264, h: 900 - 52 };
+  const imgOf = d => d.w > d.h ? "PearlLandscapePreview" : "PearlListPreview";
+  const frame = (x, y, w, h, d) => `<div class="fr" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"><img src="../img/pearl/${imgOf(d)}.jpg" alt=""></div>`;
+  // 가로 막대 — x0..x1 이 MIN..MAX, 손잡이는 v
+  const hbar = (x0, x1, y, v, opts = {}) => {
+    const px = x0 + (v - MIN) / (MAX - MIN) * (x1 - x0), L = x1 - x0;
+    return `<div class="rs" style="left:${x0}px;top:${y}px;width:${L}px;height:1px">
+      <span class="track" style="left:0;right:0;top:-2px;height:4px"></span><span class="fill" style="left:0;width:${px - x0}px;top:-2px;height:4px"></span>
+      ${[600, 840].map(t => { const tx = (t - MIN) / (MAX - MIN) * L; return `<span class="tk" style="left:${tx}px;top:4px;width:1px;height:8px"></span><span class="lab" style="left:${tx - 10}px;top:14px">${t}</span>`; }).join("")}
+      <span class="lab end" style="left:0;top:14px">${MIN}</span><span class="lab end" style="right:0;top:14px">${MAX}</span>
+      <span class="thumb" style="left:${px - x0}px;top:0"></span><span class="nb" style="left:${px - x0 - 26}px;top:-34px"><span class="nbox focus">${v}</span></span></div>`;
+  };
+  const vbar = (y0, y1, x, v) => {
+    const py = (v - MIN) / (MAX - MIN) * (y1 - y0), L = y1 - y0;
+    return `<div class="rs" style="left:${x}px;top:${y0}px;width:1px;height:${L}px">
+      <span class="track" style="top:0;bottom:0;left:-2px;width:4px"></span><span class="fill" style="top:0;height:${py}px;left:-2px;width:4px"></span>
+      ${[480, 900].map(t => { const ty = (t - MIN) / (MAX - MIN) * L; return `<span class="tk" style="top:${ty}px;left:4px;height:1px;width:8px"></span><span class="lab" style="top:${ty - 8}px;left:14px">${t}</span>`; }).join("")}
+      <span class="lab end" style="top:-18px;left:-10px">${MIN}</span><span class="lab end" style="bottom:-18px;left:-14px">${MAX}</span>
+      <span class="thumb" style="top:${py}px;left:0"></span><span class="nb" style="top:${py - 12}px;left:-64px"><span class="nbox">${v}</span></span></div>`;
+  };
+  const sizePanel = state => `<aside class="panel"><div><h4>${T.size}</h4><div class="chips">${SIZES.map(([k, l, d]) => `<span class="chip${k === "original" ? " mono" : ""}${k === "custom" ? " on" : ""}"><b>${l}</b><span>${k === "custom" ? "240–1600" : d}</span></span>`).join("")}</div></div>
+    <div class="foot">${zoomRow(state)}</div></aside>`;
+  const shell = (state, inner) => `<div class="ws">${nav(state)}<div class="body"><div class="stagebox abs">${inner}</div>${sizePanel(state)}</div></div>`;
+  const fitK = d => Math.min((pane.w - 240) / d.w, (pane.h - 200) / d.h, 1);
+
+  // S1 — 막대는 무대에 고정(길이 · 자리 그대로), 틀은 맞춤으로 가운데
+  const S1 = state => { const d = dimsOf(state), k = fitK(d), w = d.w * k, h = d.h * k, x = (pane.w - w) / 2 + 40, y = (pane.h - h) / 2 + 30;
+    return shell(state, `${hbar(pane.w / 2 - 200, pane.w / 2 + 200, 56, d.w)}${vbar(pane.h / 2 - 200, pane.h / 2 + 200, 72, d.h)}${frame(x, y, w, h, d)}<span class="cap">${T.capS1(Math.round(k * 100))}</span>`); };
+  // S2 — 막대가 실제 축척의 자: 왼쪽 위 원점이 고정이고, 손잡이 = 틀의 오른쪽 · 아래 가장자리
+  const K2 = 0.5, OX = 112, OY = 96;
+  const S2 = state => { const d = dimsOf(state);
+    return shell(state, `${hbar(OX + MIN * K2, OX + MAX * K2, OY - 40, d.w)}${vbar(OY + MIN * K2, OY + MAX * K2 > pane.h - 24 ? pane.h - 24 : OY + MAX * K2, OX - 40, d.h)}${frame(OX, OY, d.w * K2, d.h * K2, d)}<span class="cap">${T.capS2}</span>`); };
+  // S3 — 막대는 틀 위에 붙어 다니되 길이는 고정. 끄는 동안은 그 자리에 멈춘다
+  const S3 = state => { const d = dimsOf(state), k = fitK(d), w = d.w * k, h = d.h * k, x = (pane.w - w) / 2 + 40, y = (pane.h - h) / 2 + 30;
+    return shell(state, `${hbar(x + w / 2 - 180, x + w / 2 + 180, y - 40, d.w)}${vbar(y + h / 2 - 180, y + h / 2 + 180, x - 40, d.h)}${frame(x, y, w, h, d)}<span class="cap">${T.capS3}</span>`); };
+
+  // 새 안 4 — 쉴 때 치수선(숫자에 호버하면 안내), 숫자를 누르면 그 자리에서 슬라이더 + 커스텀
+  const GAP = 32, LEN = 360, BOXW = 96;
+  const PANE = { w: 1440 - 264, h: 900 - 52 };
+  const fit4 = d => Math.min((PANE.w - 2 * (GAP + 120)) / d.w, (PANE.h - 2 * (GAP + 90)) / d.h, 1);
+  const place = d => { const k = fit4(d), w = d.w * k, h = d.h * k; return { k, w, h, x: (PANE.w - w) / 2 + 40, y: (PANE.h - h) / 2 + 24 }; };
+  const pos = v => (v - MIN) / (MAX - MIN) * LEN;
+  // 폭 — 틀 위 GAP에 트랙. 숫자 칸은 트랙 왼쪽 머리, 눈금 · 끝 숫자는 트랙 위(바깥)
+  const wSlider = (f, v, focus) => { const left = f.x + f.w / 2 - (BOXW + 12 + LEN) / 2, ty = f.y - GAP, tx = left + BOXW + 12;
+    return `<div class="n4" style="left:0;top:0">
+      <span class="key" style="left:${left}px;top:${ty - 34}px">${T.w}</span>
+      <span class="box${focus ? " focus" : ""}" style="left:${left}px;top:${ty - 14}px">${v}<small>dp</small></span>
+      <span class="trk" style="left:${tx}px;top:${ty - 2}px;width:${LEN}px;height:4px"></span><span class="fil" style="left:${tx}px;top:${ty - 2}px;width:${pos(v)}px;height:4px"></span>
+      ${[600, 840].map(t => `<span class="tk" style="left:${tx + pos(t)}px;top:${ty - 10}px;width:1px;height:6px"></span><span class="tl" style="left:${tx + pos(t) - 10}px;top:${ty - 28}px">${t}</span>`).join("")}
+      <span class="tl end" style="left:${tx}px;top:${ty - 28}px">${MIN}</span><span class="tl end" style="left:${tx + LEN - 28}px;top:${ty - 28}px">${MAX}</span>
+      <span class="thm" style="left:${tx + pos(v)}px;top:${ty}px"></span></div>`; };
+  // 높이 — 틀 왼쪽 GAP에 트랙. 숫자 칸은 트랙 위 머리, 눈금 · 끝 숫자는 트랙 왼쪽(바깥)
+  const hSlider = (f, v, focus) => { const tx = f.x - GAP, top = f.y + f.h / 2 - (40 + LEN) / 2, ty = top + 40;
+    return `<div class="n4" style="left:0;top:0">
+      <span class="key" style="left:${tx - 48}px;top:${top - 22}px">${T.h}</span>
+      <span class="box${focus ? " focus" : ""}" style="left:${tx - 76}px;top:${top}px">${v}<small>dp</small></span>
+      <span class="trk" style="left:${tx - 2}px;top:${ty}px;width:4px;height:${LEN}px"></span><span class="fil" style="left:${tx - 2}px;top:${ty}px;width:4px;height:${pos(v)}px"></span>
+      ${[480, 900].map(t => `<span class="tk" style="left:${tx - 10}px;top:${ty + pos(t)}px;width:6px;height:1px"></span><span class="tl" style="left:${tx - 40}px;top:${ty + pos(t) - 8}px">${t}</span>`).join("")}
+      <span class="tl end" style="left:${tx - 40}px;top:${ty - 4}px">${MIN}</span><span class="tl end" style="left:${tx - 40}px;top:${ty + LEN - 12}px">${MAX}</span>
+      <span class="thm" style="left:${tx}px;top:${ty + pos(v)}px"></span></div>`; };
+  // 쉴 때 — 지금처럼 치수선. 폭 숫자에 호버하면 안내
+  const dims = (f, d, hover) => `<div class="n4dim" style="left:0;top:0">
+      <span class="ln" style="left:${f.x}px;top:${f.y - 20}px;width:${f.w}px;height:1px"></span>
+      <span class="ln" style="left:${f.x - 20}px;top:${f.y}px;width:1px;height:${f.h}px"></span>
+      <span class="n${hover ? " hover" : ""}" style="left:${f.x + f.w / 2}px;top:${f.y - 20}px">${d.w}</span>
+      <span class="n" style="left:${f.x - 20}px;top:${f.y + f.h / 2}px">${d.h}</span>
+      ${hover ? `<span class="tip" style="left:${f.x + f.w / 2}px;top:${f.y - 40}px">${T.clickHint}</span>` : ""}</div>`;
+  const fr4 = (f, d) => `<div class="fr" style="left:${f.x}px;top:${f.y}px;width:${f.w}px;height:${f.h}px"><img src="../img/pearl/${d.w > d.h ? "PearlLandscapePreview" : "PearlListPreview"}.jpg" alt=""></div>`;
+  const panel4 = (state, custom, preset, z) => `<aside class="panel">
+    <div><h4>${T.size}</h4><div class="chips">${SIZES.map(([k, l, d]) => `<span class="chip${k === "original" ? " mono" : ""}${(custom ? k === "custom" : k === preset) ? " on" : ""}"><b>${l}</b><span>${k === "custom" ? "240–1600" : d}</span></span>`).join("")}</div></div>
+    <div><h4>${T.device}</h4><div class="chips">${DEVICES.map(([k, l, d]) => `<span class="chip"><b>${l}</b><span>${d || "—"}</span></span>`).join("")}</div></div>
+    <div class="foot">${zoomRow(state).replace("93%", z + "%")}</div></aside>`;
+  const N4 = (mode, d) => state => { const f = place(d), custom = mode !== "rest";
+    const stage = custom ? `${wSlider(f, d.w, mode === "custom")}${hSlider(f, d.h, false)}${fr4(f, d)}` : `${dims(f, d, true)}${fr4(f, d)}`;
+    return `<div class="ws">${nav(state)}<div class="body"><div class="stagebox abs">${stage}</div>${panel4(state, custom, "original", Math.round(f.k * 100))}</div></div>`; };
+  const fig = (label, theme, state, render) => `<figure><figcaption>${label}</figcaption><div class="win wide" data-theme="${theme}">${render(state)}</div></figure>`;
+  const NEW4 = () => `<div class="figs">
+    ${fig(T.f_rest, "light", "ok", N4("rest", { w: 360, h: 780 }))}
+    ${fig(T.f_custom, "dark", "ok", N4("custom", { w: 412, h: 915 }))}
+    ${fig(T.f_small, "light", "ok", N4("small", { w: 280, h: 560 }))}
+    ${fig(T.f_large, "dark", "ok", N4("large", { w: 1280, h: 800 }))}</div>`;
+  const page = (panel, roDims) => state => `<div class="ws">${nav(state)}<div class="body"><div class="stagebox">${stage(state, roDims)}</div>${panel(state)}</div></div>`;
+
+  document.getElementById("h1").textContent = T.h1;
+  document.getElementById("note").textContent = T.note;
+  document.title = `${LANG === "ko" ? "구조 시안" : "Layout draft"} — ${T.h1}`;
+  if (new URLSearchParams(location.search).get("zoom") === "1") document.documentElement.style.setProperty("--draft-zoom", "1");
+  // 옛 안 4 · 5와 크기 비교(S1~S3)는 새 안 4로 합쳤다 — 함수는 남기고 그리지 않는다
+  document.getElementById("root").innerHTML = `<section class="variant" id="N4"><h2>${T.N4}</h2><p class="diff">${T.N4d}</p>${NEW4()}</section>`
+    + [["P1", page(P1)], ["P2", page(P2)], ["P3", page(P3)]].map(([k, f]) =>
+    `<section class="variant" id="${k}"><h2>${T[k]}</h2><p class="diff">${T[k + "d"]}</p>${frames(f)}</section>`).join("");
+  langButton();
+</script>
+</body>
+</html>

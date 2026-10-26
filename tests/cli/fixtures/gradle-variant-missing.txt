@@ -1,0 +1,14 @@
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Could not determine the dependencies of task ':feature:foryou:impl:prevueDumpClasspath'.
+> Could not create task ':feature:foryou:impl:prevueDumpClasspath'.
+   > :feature:foryou:impl has no variant 'debug' — debug variant candidates: prodDebug, demoDebug
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 4s
