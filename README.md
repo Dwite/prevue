@@ -21,15 +21,15 @@
 </div>
 
 <p align="center">
-  <img src="assets/demo.webp" width="1000"
-       alt="One prompt in Claude Code builds a bubble tea app's Home screen while Prevue redraws it on the right. It opens with the finished screen switching from Galaxy S26 to an unfolded and folded iPhone Duo and Pixel Tablet, then replays the work: the agent reads the design, writes the cup, the drink card and the Home screen one piece at a time, checks each picture in Prevue, and checks the screen on every device. A popup at the bottom shows the step out of five, its goal, and the agent's own words; a clock at the top right shows the real elapsed time">
+  <img src="assets/intro.webp" width="1000"
+       alt="Prevue in 20 seconds, on the Pearl sample app. Hot swap: seven color values change in Theme.kt, one save, and the Preview flips to a dark theme about a second later. Interactive: the live Preview scrolls, a drink opens, and choosing size L, a topping and extra pearls changes the cup. Every screen: the viewer's size panel steps through 320×640, 673×841 and a custom width dragged to 900, where the menu grows to four columns, then iPhone Duo unfolds and folds shut to its cover screen">
 </p>
-<p align="center"><sub>One prompt and a design — a Claude artifact here; a screenshot or a Figma frame works too. About 6 minutes of real work, sped up.</sub></p>
+<p align="center"><sub>Hot swap, interactive and every screen — real renders of the sample app.</sub></p>
 
-## Sound familiar?
+## The agent codes, you still check
 
 Your agent says the screen is done. So you open Android Studio, wait for Gradle, and find the padding is off.
-You take a screenshot, explain what's wrong, and wait for the next try. **The agent writes the code, but you're still its eyes — every round.**
+You take a screenshot, explain what's wrong, and wait for the next try. **The agent writes the code, but you're still its eyes — every loop.**
 
 And every look costs an IDE. One Preview keeps Android Studio, a Gradle daemon, and a Kotlin daemon running, about 8GB.
 Give each of three agents its own worktree and you're running three Android Studios.
@@ -38,7 +38,7 @@ Here's that loop. Notice who sits in the middle of it.
 
 <p align="center">
   <img src="assets/agent-loop-before.png" width="880"
-       alt="The UI fix loop before Prevue. The developer sits inside the loop, highlighted in orange: the coding agent edits and saves, Android Studio builds and renders the Preview in about four seconds, and the developer looks, takes a screenshot, and explains what's wrong before the agent edits again — every round">
+       alt="The UI fix loop before Prevue. The developer sits inside the loop, highlighted in orange: the coding agent edits and saves, Android Studio builds and renders the Preview in about four seconds, and the developer looks, takes a screenshot, and explains what's wrong before the agent edits again — every loop">
 </p>
 
 We hit this every day. With three agents on a 36GB Mac, the Android Studios started swapping and every task slowed to a crawl.
@@ -143,8 +143,6 @@ Press `?` in the viewer for every shortcut.
 
 Every `@Preview` in a file lands on the board, grouped by function. Save, and they all redraw; the pill in the header shows how long it took.
 
-Left, a real app's screen with 25 Previews. Right, a file full of small components.
-
 <p align="center">
   <img src="assets/hero.png" width="50%" alt="The board with the Previews of nowinandroid ForYouScreen.kt laid out in groups by function. The header shows the app name, folder, branch, module, and variant, with a check pill on the right. The open files list on the left has ForYouScreen, InterestsScreen, and NewsResourceCard, and each group header shows its count and zoom"><img src="assets/board-pearl.png" width="50%" alt="The board for ComponentPreviews.kt of the Pearl bubble tea app. The first group shows a button, filter chips, sweetness options, topping toggles, the bottom nav bar, and bag badges, with the drink detail screen below it. The page is open in a Chrome tab">
 </p>
@@ -155,8 +153,6 @@ Left, a real app's screen with 25 Previews. Right, a file full of small componen
 Press a card's `▶` to open it large. Switch the screen size or the device (six Android, four iPhone, foldables that fold) without touching the source.
 Click and drag to see motion and animations as they run, like Android Studio's Interactive Mode.
 
-Top row: the bottom nav, a category header, and a card opening into its detail. Bottom row: cup physics, and the same screen across devices as it folds and unfolds.
-
 <p align="center">
   <img src="assets/interactive-nav.gif" width="33.3%" alt="In the workspace, tapping the bubble tea app's bottom nav in the order Home, Orders, Saved, Profile, Home slides the orange pill over and expands the label of the chosen tab as the screen changes"><img src="assets/interactive-header.gif" width="33.3%" alt="In the workspace, tapping the Fruit tea, Milk tea, Matcha, and All chips in turn spreads that category's color across the header, drops the cup out and bounces a new one in, changes the headline, and filters the grid below"><img src="assets/interactive-detail.gif" width="33.3%" alt="In the workspace, tapping the Taro Milk Tea card grows the card to fill the screen while the cup flies separately into its spot on the detail screen. Add to bag sends the cup flying into the bag at the top right and the badge pops, and the back arrow plays it in reverse back to the card">
 </p>
@@ -165,13 +161,9 @@ Top row: the bottom nav, a category header, and a card opening into its detail. 
   <img src="assets/interactive-cup.gif" width="33.3%" alt="On the detail screen, Ice Extra opens the lid and drops ice in so the drink rises, Pearls Extra pours pearls in a curve, and None flings them off screen. Dragging the cup side to side sloshes the drink, and Sweetness 0% and 100% make its color lighter and then deeper"><img src="assets/devices.gif" width="66.6%" alt="Changing devices from the panel on the right of the workspace. On S26 the options sit under the cup. Unfolding iPhone Duo splits it into the cup on the left and the options panel on the right. Fold goes back to a single column on the cover screen, unfolding splits it again, and on Pixel Tablet the cup and panel also sit side by side">
 </p>
 
-Only the size and density change. The viewer draws the hinge as a line, so layouts that read the fold state (FoldingFeature) aren't covered.
-
 ### Quick open
 
 Edit a screen and the components inside it together without losing either. Open files stay in the list on the left, and `/` or `⌘K` finds any file by name, initials (`fys` → `ForYouScreen.kt`), or Preview function name.
-
-Open a file by name, then another by its initials, and jump back with the number keys.
 
 <p align="center">
   <img src="assets/files.gif" width="1000"
