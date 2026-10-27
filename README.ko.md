@@ -11,7 +11,7 @@
 <div align="center">
 
 [![GitHub Actions](https://img.shields.io/badge/GitHub%C2%A0Actions-%EB%B9%8C%EB%93%9C%C2%A0%EA%B2%80%EC%A6%9D-0E1B2A?logo=github&logoColor=white)](https://github.com/kakao/prevue/actions/workflows/build.yml)
-[![version](https://img.shields.io/badge/version-0.18.1-0E1B2A)](CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-0.18.2-0E1B2A)](CHANGELOG.md)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-0E1B2A?logo=claude&logoColor=white)](#시작하기)
 [![Codex](https://img.shields.io/badge/Codex-plugin-0E1B2A?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTIyLjI4MTkgOS44MjExYTUuOTg0NyA1Ljk4NDcgMCAwIDAtLjUxNTctNC45MTA4IDYuMDQ2MiA2LjA0NjIgMCAwIDAtNi41MDk4LTIuOUE2LjA2NTEgNi4wNjUxIDAgMCAwIDQuOTgwNyA0LjE4MThhNS45ODQ3IDUuOTg0NyAwIDAgMC0zLjk5NzcgMi45IDYuMDQ2MiA2LjA0NjIgMCAwIDAgLjc0MjcgNy4wOTY2IDUuOTggNS45OCAwIDAgMCAuNTExIDQuOTEwNyA2LjA1MSA2LjA1MSAwIDAgMCA2LjUxNDYgMi45MDAxQTUuOTg0NyA1Ljk4NDcgMCAwIDAgMTMuMjU5OSAyNGE2LjA1NTcgNi4wNTU3IDAgMCAwIDUuNzcxOC00LjIwNTggNS45ODk0IDUuOTg5NCAwIDAgMCAzLjk5NzctMi45MDAxIDYuMDU1NyA2LjA1NTcgMCAwIDAtLjc0NzUtNy4wNzI5em0tOS4wMjIgMTIuNjA4MWE0LjQ3NTUgNC40NzU1IDAgMCAxLTIuODc2NC0xLjA0MDhsLjE0MTktLjA4MDQgNC43NzgzLTIuNzU4MmEuNzk0OC43OTQ4IDAgMCAwIC4zOTI3LS42ODEzdi02LjczNjlsMi4wMiAxLjE2ODZhLjA3MS4wNzEgMCAwIDEgLjAzOC4wNTJ2NS41ODI2YTQuNTA0IDQuNTA0IDAgMCAxLTQuNDk0NSA0LjQ5NDR6bS05LjY2MDctNC4xMjU0YTQuNDcwOCA0LjQ3MDggMCAwIDEtLjUzNDYtMy4wMTM3bC4xNDIuMDg1MiA0Ljc4MyAyLjc1ODJhLjc3MTIuNzcxMiAwIDAgMCAuNzgwNiAwbDUuODQyOC0zLjM2ODV2Mi4zMzI0YS4wODA0LjA4MDQgMCAwIDEtLjAzMzIuMDYxNUw5Ljc0IDE5Ljk1MDJhNC40OTkyIDQuNDk5MiAwIDAgMS02LjE0MDgtMS42NDY0ek0yLjM0MDggNy44OTU2YTQuNDg1IDQuNDg1IDAgMCAxIDIuMzY1NS0xLjk3MjhWMTEuNmEuNzY2NC43NjY0IDAgMCAwIC4zODc5LjY3NjVsNS44MTQ0IDMuMzU0My0yLjAyMDEgMS4xNjg1YS4wNzU3LjA3NTcgMCAwIDEtLjA3MSAwbC00LjgzMDMtMi43ODY1QTQuNTA0IDQuNTA0IDAgMCAxIDIuMzQwOCA3Ljg3MnptMTYuNTk2MyAzLjg1NThMMTMuMTAzOCA4LjM2NCAxNS4xMTkyIDcuMmEuMDc1Ny4wNzU3IDAgMCAxIC4wNzEgMGw0LjgzMDMgMi43OTEzYTQuNDk0NCA0LjQ5NDQgMCAwIDEtLjY3NjUgOC4xMDQydi01LjY3NzJhLjc5Ljc5IDAgMCAwLS40MDctLjY2N3ptMi4wMTA3LTMuMDIzMWwtLjE0Mi0uMDg1Mi00Ljc3MzUtMi43ODE4YS43NzU5Ljc3NTkgMCAwIDAtLjc4NTQgMEw5LjQwOSA5LjIyOTdWNi44OTc0YS4wNjYyLjA2NjIgMCAwIDEgLjAyODQtLjA2MTVsNC44MzAzLTIuNzg2NmE0LjQ5OTIgNC40OTkyIDAgMCAxIDYuNjgwMiA0LjY2ek04LjMwNjUgMTIuODYzbC0yLjAyLTEuMTYzOGEuMDgwNC4wODA0IDAgMCAxLS4wMzgtLjA1NjdWNi4wNzQyYTQuNDk5MiA0LjQ5OTIgMCAwIDEgNy4zNzU3LTMuNDUzN2wtLjE0Mi4wODA1TDguNzA0IDUuNDU5YS43OTQ4Ljc5NDggMCAwIDAtLjM5MjcuNjgxM3ptMS4wOTc2LTIuMzY1NGwyLjYwMi0xLjQ5OTggMi42MDY5IDEuNDk5OHYyLjk5OTRsLTIuNTk3NCAxLjQ5OTctMi42MDY3LTEuNDk5N1oiLz48L3N2Zz4%3D)](#시작하기)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-headless%20render-4285F4?logo=jetpackcompose&logoColor=white)
@@ -49,8 +49,6 @@ Paparazzi · Roborazzi도 컴포저블을 이미지로 뽑아 주지만, 이미�
 
 ### 확인도 에이전트가 합니다
 
-**더는 에이전트의 눈 노릇을 하지 않아도 됩니다.**
-
 Prevue는 저장할 때마다 1초쯤 안에 Preview를 다시 그려 에이전트에게 보여 줍니다. 그래서 시안(Figma 프레임 · 스크린샷 · 목업)을 주면 에이전트가 고치고, 보고, 비교하고, 다시 고치기를 혼자 되풀이합니다. 사람은 끝난 화면을 브라우저에서 확인만 하면 됩니다.
 
 ```
@@ -64,21 +62,14 @@ Prevue는 저장할 때마다 1초쯤 안에 Preview를 다시 그려 에이전�
        alt="Prevue에서의 UI 수정 루프. 개발자는 루프 밖에 있다. 목표와 기준을 코딩 에이전트에게 주면 에이전트가 고쳐 저장하고, Prevue가 약 1초에 그린 PNG를 기준과 비교하며 혼자 루프를 돈다. 끝나면 개발자가 브라우저의 같은 Preview로 확인한다">
 </p>
 
-> **실측** — nowinandroid 온보딩 화면에서 네 곳(제목 정렬 · 칩 색 · 칩 모서리 · 아이콘 크기)을 바꾼 시안을 주자,
-> 사람 개입 없이 **두 번의 반복 · 약 1분 30초** 만에 렌더 결과가 시안과 바이트 단위까지 같아졌습니다(2026-09-23).
-
 탭하거나 드래그해야 바뀌는 화면도 확인합니다. 에이전트가 Preview를 인터랙티브 모드로 켜고 터치를 보낸 뒤 바뀐 화면을 받아 봅니다.
 
 ### 볼 때는 이미 그려져 있습니다
-
-**바뀐 걸 보려고 빌드를 기다리지 않습니다.**
 
 저장하면 Gradle 없이 1초쯤 뒤 Preview가 새로 뜹니다. 여백 · 색 · 문구 같은 값만 바꿨으면 0.2초쯤입니다.
 에이전트와 사람이 같은 Preview를 보니 에이전트가 "다 됐어요" 하는 순간 사람도 이미 보고 있습니다([벤치마크](#벤치마크)).
 
 ### 설명 대신 가리키세요
-
-**클릭 한 번이 설명 한 문단을 대신합니다.**
 
 Preview에서 아무 곳이나 클릭하고 에이전트에게 말하면 됩니다. 스크린샷도, "위에서 두 번째 카드"도 필요 없습니다.
 
@@ -96,8 +87,6 @@ Preview에서 아무 곳이나 클릭하고 에이전트에게 말하면 됩니�
 </p>
 
 ### 에이전트가 셋이어도 가볍게
-
-**에이전트를 늘려도 Mac이 느려지지 않습니다.**
 
 워크트리마다 가벼운 Prevue 데몬이 따로 뜹니다. 데몬 하나가 약 1.4GB로, Android Studio보다 메모리를 83% 적게 씁니다.
 
@@ -132,6 +121,23 @@ ForYouScreen.kt Preview 실행해줘
 
 따로 설정할 것은 없습니다. 처음 실행할 때 필요한 준비는 에이전트가 확인을 받아 가며 진행합니다. 준비가 끝나면 브라우저가 열리고 그 파일의 `@Preview`가 모두 뜹니다.
 프로젝트의 빌드 파일 · 플러그인 · 태스크를 바꾸지 않고, 프로젝트 안에 파일도 만들지 않습니다. Gradle은 모듈마다 처음 한 번만 실행되고, 그 뒤로는 공용 모듈을 고쳐도 바로 다시 그립니다.
+
+### 업데이트
+
+마켓플레이스 정보를 먼저 갱신한 뒤 플러그인을 업데이트합니다. 이 단계를 건너뛰면 옛 버전 정보를 보고 "이미 최신"이라고 답합니다.
+
+```sh
+# Claude Code — 재시작하거나 /reload-plugins 뒤에 적용된다
+claude plugin marketplace update prevue
+claude plugin update prevue@prevue
+
+# Codex — update 가 없어 add 를 다시 부른다
+codex plugin marketplace upgrade
+codex plugin add prevue@prevue
+```
+
+바뀐 것은 [CHANGELOG.md](CHANGELOG.md)에 있습니다.
+막히면 에이전트에게 `prevue log`를 읽어 달라고 하세요. 그래도 안 되면 이슈로 알려 주세요.
 
 ## 더 자세히
 
@@ -210,24 +216,6 @@ Android Studio의 Interactive Mode처럼 클릭 · 드래그로 모션과 애니
 | 최상위 `@Preview` 함수. Multipreview와 `@PreviewParameter`도 펼쳐서 그립니다 | 클래스 안에 선언한 멤버 Preview |
 | 실기기가 없어도 그려지는 컴포저블 | DI 컨테이너나 `AndroidView`가 필요한 Preview — 실패 종류가 `DI` · `ANDROID_VIEW`로 표시됩니다 |
 
-## 업데이트
-
-마켓플레이스 정보를 먼저 갱신한 뒤 플러그인을 업데이트합니다. 이 단계를 건너뛰면 옛 버전 정보를 보고 "이미 최신"이라고 답합니다.
-
-```sh
-# Claude Code — 재시작하거나 /reload-plugins 뒤에 적용된다
-claude plugin marketplace update prevue
-claude plugin update prevue@prevue
-
-# Codex — update 가 없어 add 를 다시 부른다
-codex plugin marketplace upgrade
-codex plugin add prevue@prevue
-```
-
----
-
-바뀐 것은 [CHANGELOG.md](CHANGELOG.md)에 있습니다.
-막히면 에이전트에게 `prevue log`를 읽어 달라고 하세요. 그래도 안 되면 이슈로 알려 주세요.
 
 ## License
 
