@@ -50,8 +50,6 @@ Paparazzi and Roborazzi also turn composables into images, but they rebuild for 
 
 ### Your agent checks its own work
 
-**You stop being your agent's eyes.**
-
 Prevue redraws the Preview about a second after each save and hands that picture to the agent.
 Give it a design — a Figma frame, a screenshot, a mockup — and it edits, looks, compares, and edits again on its own. You come back to a finished screen and confirm it in your browser.
 
@@ -66,21 +64,14 @@ Same loop, but now you're outside it.
        alt="The UI fix loop with Prevue. The developer stays outside the loop: they hand the coding agent a goal and a reference, the agent edits and saves, Prevue renders a PNG in about a second, and the agent compares it with the reference and loops on its own. When it's done, the developer reviews the same Preview in the browser">
 </p>
 
-> **Measured** — Given a design that changed four things on the nowinandroid onboarding screen (title alignment, chip color, chip corners, icon size),
-> the agent matched the render to the design byte for byte in **2 loops, about 1 minute 30 seconds**, with no human input (2026-09-23).
-
 Screens that only change when you tap or drag are covered too. The agent switches the Preview into interactive mode, sends touches, and gets the new picture back.
 
 ### When you look, it's already there
-
-**No more waiting on a build to see a change.**
 
 Save, and the Preview redraws in about a second without Gradle. Change only a value — padding, a color, a string — and it takes about 0.2 seconds.
 The agent and you look at the same Preview, so "it's done" and "I see it" happen at the same moment ([Benchmark](#benchmark)).
 
 ### Point instead of explaining
-
-**One click replaces a paragraph of explanation.**
 
 Click anything in the Preview and tell your agent what to do with it. No screenshots, no "the second card from the top."
 
@@ -99,11 +90,9 @@ The click pins a box and a file:line tag right where you pointed.
 
 ### Three agents, still light
 
-**More agents no longer means a slower Mac.**
+Every worktree gets its own lightweight Prevue daemon. One daemon uses about 1.4GB, 83% less memory than Android Studio.
 
-Every worktree gets its own small Prevue: one daemon, about 1.4GB, 83% less memory than Android Studio.
-
-Both agents save at once, and each window redraws on its own. Then only the left one saves again — watch the right one stay put.
+Even when two agents save at the same time, each window redraws on its own, and when only one saves again, the other stays put.
 
 <p align="center">
   <img src="assets/worktrees.gif" width="1000"
@@ -112,9 +101,9 @@ Both agents save at once, and each window redraws on its own. Then only the left
 
 ## Get started
 
-Ready to try it? It's two commands.
+Installing takes two commands.
 
-You need JDK 21 or later and the macOS Command Line Tools (`python3`). If you have Android Studio, Prevue uses its bundled JBR, and if the Command Line Tools are missing, the agent opens the installer for you.
+You need JDK 21 or later and the macOS Command Line Tools (`python3`). If Android Studio is installed, Prevue uses the JBR bundled with it. If the Command Line Tools are missing, the agent opens the installer for you.
 
 ```sh
 # Claude Code
@@ -126,14 +115,31 @@ codex plugin marketplace add https://github.com/kakao/prevue.git
 codex plugin add prevue@prevue
 ```
 
-Then tell your agent the file name. Naming the skill makes it more reliable: `/prevue` in Claude Code, `$prevue:prevue` in Codex.
+Then tell your agent the file name. Calling the skill directly is more reliable: `/prevue` in Claude Code, `$prevue:prevue` in Codex.
 
 ```
 Show the Previews in ForYouScreen.kt
 ```
 
-There's nothing to set up. The first time, the agent asks what it needs and prepares it, then your browser opens with every `@Preview` in that file.
-Prevue doesn't touch your build files, plugins, or tasks, and it doesn't add files to your project. Gradle runs once per module, and after that even edits to shared modules redraw right away.
+There's nothing to configure. The first time you run it, the agent does the setup it needs, checking with you as it goes. When it's done, your browser opens with every `@Preview` in that file.
+Prevue doesn't change your project's build files, plugins, or tasks, and it doesn't add files to your project. Gradle runs only once per module; after that, even edits to shared modules redraw right away.
+
+### Update
+
+Refresh the marketplace info first, then update the plugin. If you skip this step, it reads the old version info and says it is already up to date.
+
+```sh
+# Claude Code — takes effect after a restart or /reload-plugins
+claude plugin marketplace update prevue
+claude plugin update prevue@prevue
+
+# Codex — there is no update, so run add again
+codex plugin marketplace upgrade
+codex plugin add prevue@prevue
+```
+
+Changes are in [CHANGELOG.md](CHANGELOG.md).
+If you get stuck, ask your agent to read `prevue log`. If that doesn't help, let us know in an issue.
 
 ## A closer look
 
@@ -141,7 +147,7 @@ Press `?` in the viewer for every shortcut.
 
 ### Every Preview on one board
 
-Every `@Preview` in a file lands on the board, grouped by function. Save, and they all redraw; the pill in the header shows how long it took.
+Every `@Preview` in a file is laid out on the board, grouped by function. Save, and they all redraw, with the time it took shown in the header.
 
 <p align="center">
   <img src="assets/hero.png" width="50%" alt="The board with the Previews of nowinandroid ForYouScreen.kt laid out in groups by function. The header shows the app name, folder, branch, module, and variant, with a check pill on the right. The open files list on the left has ForYouScreen, InterestsScreen, and NewsResourceCard, and each group header shows its count and zoom"><img src="assets/board-pearl.png" width="50%" alt="The board for ComponentPreviews.kt of the Pearl bubble tea app. The first group shows a button, filter chips, sweetness options, topping toggles, the bottom nav bar, and bag badges, with the drink detail screen below it. The page is open in a Chrome tab">
@@ -150,8 +156,8 @@ Every `@Preview` in a file lands on the board, grouped by function. Save, and th
 
 ### Interactive mode
 
-Press a card's `▶` to open it large. Switch the screen size or the device (six Android, four iPhone, foldables that fold) without touching the source.
-Click and drag to see motion and animations as they run, like Android Studio's Interactive Mode.
+Press a card's `▶` to open it large. You can change the screen size or the device (six Android, four iPhone, foldables that fold) without touching the source.
+Like Android Studio's Interactive Mode, click and drag to check motion and animations.
 
 <p align="center">
   <img src="assets/interactive-nav.gif" width="33.3%" alt="In the workspace, tapping the bubble tea app's bottom nav in the order Home, Orders, Saved, Profile, Home slides the orange pill over and expands the label of the chosen tab as the screen changes"><img src="assets/interactive-header.gif" width="33.3%" alt="In the workspace, tapping the Fruit tea, Milk tea, Matcha, and All chips in turn spreads that category's color across the header, drops the cup out and bounces a new one in, changes the headline, and filters the grid below"><img src="assets/interactive-detail.gif" width="33.3%" alt="In the workspace, tapping the Taro Milk Tea card grows the card to fill the screen while the cup flies separately into its spot on the detail screen. Add to bag sends the cup flying into the bag at the top right and the badge pops, and the back arrow plays it in reverse back to the card">
@@ -163,7 +169,7 @@ Click and drag to see motion and animations as they run, like Android Studio's I
 
 ### Quick open
 
-Edit a screen and the components inside it together without losing either. Open files stay in the list on the left, and `/` or `⌘K` finds any file by name, initials (`fys` → `ForYouScreen.kt`), or Preview function name.
+Switch between a screen file and its component files while you edit, and the open files stay in the list on the left. `/` or `⌘K` finds a file by name, initials (`fys` → `ForYouScreen.kt`), or Preview function name.
 
 <p align="center">
   <img src="assets/files.gif" width="1000"
@@ -187,7 +193,7 @@ Top, the same work in Android Studio and in Prevue. Bottom, how fast each kind o
 - **Setup** — Apple Silicon, 14 cores · 36GB RAM · nowinandroid `ForYouScreen.kt` (25 Previews). Android Studio 2026.1.3 was measured on 2026-09-22 and Prevue (develop `feb5c6e`) on 2026-10-23. Prevue values are medians
 - **Hot Swap** — From save until all 25 show the new picture. The first one appears at 0.9 seconds
 - **First Preview** — Android Studio from opening the project, Prevue from starting the daemon, until the first render finishes
-- **Memory** — Android Studio is the IDE plus the Gradle daemon at one moment; Prevue is its one daemon's footprint after 10 saves. Going back and forth between modules for a long time, it peaked at 1.6GB, and it shuts itself down after 10 minutes of no use
+- **Memory** — Android Studio is the IDE plus the Gradle daemon at one moment; Prevue is the memory use of its one daemon after 10 saves. Going back and forth between modules for a long time, it peaked at 1.6GB, and it shuts itself down after 10 minutes without use
 - **Disk** — The Android Studio app bundle vs `~/.prevue/toolchain`
 - **How fast Prevue redraws** — Literal and resource-value saves skip compilation. Switching modules and changing devices are measured until the new picture is ready. Interactive is the frame rate on the viewer stream while dragging a feed
 
@@ -212,24 +218,6 @@ See every command and exit code with `prevue --help`, and each command with `pre
 | Top-level `@Preview` functions. Multipreview and `@PreviewParameter` are expanded too | Member Previews declared inside a class |
 | Composables that draw without a real device | Previews that need a DI container or `AndroidView` — shown with the failure kinds `DI` · `ANDROID_VIEW` |
 
-## Update
-
-Refresh the marketplace copy first, then update the plugin. If you skip the copy, it reads the old version and says it is already up to date.
-
-```sh
-# Claude Code — takes effect after a restart or /reload-plugins
-claude plugin marketplace update prevue
-claude plugin update prevue@prevue
-
-# Codex — there is no update, so run add again
-codex plugin marketplace upgrade
-codex plugin add prevue@prevue
-```
-
----
-
-Changes are in [CHANGELOG.md](CHANGELOG.md).
-If you get stuck, ask your agent to read `prevue log`. If that doesn't help, let us know in an issue.
 
 ## License
 
