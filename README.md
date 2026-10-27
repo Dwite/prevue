@@ -22,7 +22,7 @@
 
 <p align="center">
   <img src="assets/intro.webp" width="1000"
-       alt="Prevue in 20 seconds, on the Pearl sample app. Hot swap: seven color values change in Theme.kt, one save, and the Preview flips to a dark theme about a second later. Interactive: the live Preview scrolls, a drink opens, and choosing size L, a topping and extra pearls changes the cup. Every screen: the viewer's size panel steps through 320×640, 673×841 and a custom width dragged to 900, where the menu grows to four columns, then iPhone Duo unfolds and folds shut to its cover screen">
+       alt="Prevue in 20 seconds, on the Pearl sample app. Hot swap: on a board of Previews, one save turns the drink cards into wide rows, a second save changes seven colors in Theme.kt to a dark theme, and all 30 Previews redraw each time. Interactive: the live Preview scrolls, a drink opens, and choosing size L, a topping and extra pearls changes the cup. Every screen: that drink screen steps through 320×640, 673×841 and a custom width dragged to 900, splitting into two panes from 673 wide, then iPhone Duo unfolds and folds shut to its cover screen">
 </p>
 <p align="center"><sub>Hot swap, interactive and every screen — real renders of the sample app.</sub></p>
 
