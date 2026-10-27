@@ -8,6 +8,10 @@ Only changes users can see go here.
 
 ## [Unreleased]
 
+## [0.18.3] — 2026-10-28
+
+- **The README intro video is redrawn.** Hot swap now changes a whole board of Previews twice, layout then theme, and the every-screen part follows the same drink screen into its two-pane layout from 673 wide and onto a folding iPhone Duo.
+
 ## [0.18.2] — 2026-10-27
 
 - **The README now opens with a 20-second intro video** and reads more naturally in English and Korean. Install and update share one section.
