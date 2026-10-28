@@ -98,6 +98,11 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    // CI 는 보고서를 올리지 않는다 — 실패한 단언의 메시지가 로그에 없으면 무엇이 어긋났는지 알 길이 없다
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
     // 계약(contract/*.json)을 다시 쓴다. 의도한 변화일 때만 — diff 가 커밋에 실린다.
     systemProperty("prevue.contract.update", providers.gradleProperty("contractUpdate").getOrElse("false"))
 }
@@ -115,6 +120,9 @@ configurations[integrationTest.compileOnlyConfigurationName].extendsFrom(configu
 configurations[integrationTest.runtimeOnlyConfigurationName].extendsFrom(configurations.testRuntimeOnly.get())
 // main 의 internal 을 단위 테스트처럼 본다.
 kotlin.target.compilations.getByName("integrationTest").associateWith(kotlin.target.compilations.getByName("main"))
+
+// 픽스처는 플러그인 밖(저장소 루트)에 있다 — 설치본에 실리지 않는다(D-123)
+val pearlFixture: File = rootDir.resolve("../fixtures/pearl").canonicalFile
 
 tasks.register<Test>("integrationTest") {
     description = "진짜 렌더러로 로더 공유 · 인터랙티브 회귀를 본다(로컬)"
@@ -143,7 +151,7 @@ tasks.register<Test>("integrationTest") {
     // 준비 15분 + 테스트 수 × 3분보다 넉넉히 둔다 — 첫 실패의 스택은 그래도 보고서에 남는다
     timeout.set(Duration.ofMinutes(90))
     // 픽스처만 바꾼 PR(버전 올리기 포함)도 다시 돌아야 한다 — 그 PR이 곧 호환성 확인이다
-    inputs.files(fileTree("fixtures/pearl") { exclude("**/build/**", "**/.gradle/**", "**/.kotlin/**", "local.properties") })
+    inputs.files(fileTree(pearlFixture) { exclude("**/build/**", "**/.gradle/**", "**/.kotlin/**", "local.properties") })
         .withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName("pearlFixture")
 }
 

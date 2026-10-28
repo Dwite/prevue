@@ -10,7 +10,7 @@ description: Prevue 저장소의 코드를 바꾸는 작업을 계획 합의부�
 
 - **사람에게 묻는 곳은 계획 합의 한 번이다.** 그 뒤에는 머지 · 볼트 캡처 · 치우기까지 간다. 따로 멈추는 곳은 둘 — 대상 저장소의 Gradle 실행(`AGENTS.md` "승인이 필요한 것"), 그리고 합의한 성공 기준을 못 맞추거나 범위를 바꿔야 할 때. 멈추면 무엇이 왜 어긋났는지 보고한다.
 - 상태는 git · GitHub · 볼트에서 읽는다(볼트는 읽기만 한다). 따로 적어 두는 파일이 없다 — 다시 불리면 0단계가 멈춘 자리를 찾는다.
-- **볼트에 노트를 직접 쓰지 않는다.** 볼트에 남기는 것은 `wiki-ingest` 스킬의 보류 캡처 갈래로 넘기는 과업 캡처 둘(1단계 계획 · 6단계 머지)뿐이고, 형식과 노트 모양은 위키 스킬과 볼트가 갖는다 — 여기서는 재료만 넘긴다. 노트를 만들고 옮기는 것(작업 노트 · Archive · 개발 문서 · 결정 기록)은 볼트 쪽 편입이 한다.
+- **볼트에 노트를 직접 쓰지 않는다.** 볼트에 남기는 것은 `wiki-ingest` 스킬의 보류 캡처 갈래로 넘기는 과업 캡처 셋(1단계 계획 · 2단계 착수 · 6단계 머지)뿐이고, 형식과 노트 모양은 위키 스킬과 볼트가 갖는다 — 여기서는 재료만 넘긴다. 노트를 만들고 옮기는 것(작업 노트 · Archive · 개발 문서 · 결정 기록)은 볼트 쪽 편입이 한다.
 
 ## 0. 어디서부터인가
 
@@ -35,7 +35,7 @@ gh pr view <그 번호> --json comments -q '.comments[].body'     # MERGED 면 �
 
 ## 1. 계획 — 베이스에서 읽기만
 
-코드와 볼트 문서(`AGENTS.md`의 문서 표 순서)에서 사실을 먼저 확인한다. 재현이 필요하면 베이스의 `bin/prevue`로 본다 — 고치지 않는다.
+코드와 볼트 문서(`AGENTS.md`의 문서 표 순서)에서 사실을 먼저 확인한다. 재현이 필요하면 베이스의 `plugin/bin/prevue`로 본다 — 고치지 않는다.
 
 - **열린 결정이 있으면**(대안이 갈리거나 기준을 정해야 한다) `grilling` 스킬로 하나씩 정한다. 인자가 `grill`이면 늘 이쪽이다. 사용자 레벨 전역 스킬이라 Prevue 규약은 부르는 여기가 넘긴다.
   - 사실 확인 순서 — `AGENTS.md` 문서 표의 순서대로, 코드와 볼트 문서를 읽고 묻는다. 볼트 경로(`CLAUDE.local.md`)도 함께 넘긴다.
@@ -64,7 +64,7 @@ Sub-Task  <이름> | 없음
 - origin `prevue` · `worktree-<작업명>`, 작업 이름(기존 작업이면 그 노트 이름 — 그때는 새 Sub-Task만), 한 줄 · 왜 · 범위(한다 · 뺀다와 이유) · 성공 기준
 - 결정 — 정한 것 · 기각한 것과 이유. 뒤집을 조건이 있는 결정에는 다음 `D-<n>`을 붙인다 — `Prevue 결정 기록`의 마지막 번호와 볼트 `+`의 계획 캡처에 이미 붙은 번호 중 큰 것의 다음이다. 읽기만 하고, 결정 기록에 옮기는 것은 볼트 쪽이다
 - Sub-Task마다 이름 · 계획 · 검증 · 선행
-- Prevue 재료 — 예상 버전(대개 `VERSION`의 다음 마이너), 성격(버그 · 기능 · 개선 · 조사)
+- Prevue 재료 — 예상 버전(대개 `plugin/VERSION`의 다음 마이너), 성격(버그 · 기능 · 개선 · 조사)
 
 볼트 경로(문서를 읽는 곳)는 개인 파일이 갖는다 —
 `~/.codex/AGENTS.md`.
@@ -80,18 +80,20 @@ git worktree add .worktrees/<작업명> -b worktree-<작업명> origin/develop
 ```
 
 
+**착수 캡처 — Sub-Task가 `없음`이 아닐 때.** 워크트리를 새로 만들었으면 `wiki-ingest` 스킬을 보류 캡처 갈래로 로드해 origin `prevue` · `worktree-<작업명>`과 이번에 착수하는 Sub-Task 이름을 넘긴다 — 볼트가 그 Sub-Task를 진행 중으로 바꾼다. 이어 하는 세션(워크트리가 이미 있다)은 남기지 않는다. 볼트나 `wiki-ingest` 스킬이 없으면 건너뛴다.
+
 이후 명령은 전부 그 디렉터리에서 돈다.
 
 ```sh
 git log -1 --oneline                 # origin/develop 의 끝인지 본다 — 아니면 origin/HEAD 가 main 이다(AGENTS.md 클론 직후)
-./gradlew --offline installPrevue    # 이 체크아웃의 bin/prevue 가 쓸 실행 파일. 스킬 · 문서만 고치면 건너뛴다
+(cd plugin && ./gradlew --offline installPrevue)    # 이 체크아웃의 plugin/bin/prevue 가 쓸 실행 파일. 스킬 · 문서만 고치면 건너뛴다
 ```
 
 ## 3. 개발
 
 - **성공 기준마다 증거를 남긴다** — 무엇을 쳐서 무엇을 봤는지. 5단계의 검증 기록이 된다.
-  - 단위 테스트 `./gradlew --offline test` · CLI 판정 `python3 -m unittest discover -s tests/cli` · 스킬 두 벌 `sh tools/gen-skills.sh --check`
-  - 렌더는 **이 워크트리의** `bin/prevue`로 본다(`AGENTS.md` "브랜치와 워크트리").
+  - 단위 테스트 `(cd plugin && ./gradlew --offline test)` · CLI 판정 `python3 -m unittest discover -s tests/cli` · 스킬 두 벌 `sh tools/gen-skills.sh --check`
+  - 렌더는 **이 워크트리의** `plugin/bin/prevue`로 본다(`AGENTS.md` "브랜치와 워크트리").
   - 뷰어는 헤드리스 Chrome으로 본다. 모션 느낌 · Safari처럼 사람 눈이 필요한 것은 "사람 확인 전"으로 적어 두고 막지 않는다.
 - 사용자에게 보이는 변화는 `CHANGELOG.md` `[Unreleased]`에 적는다.
 - 검증장 · 대상 체크아웃은 `AGENTS.md` "개발 위생"을 따른다.
@@ -107,12 +109,13 @@ diff가 README · CHANGELOG · 그림뿐이면 건너뛴다.
 
 ## 5. 로컬 검증 → PR → 머지
 
-develop으로 가는 PR에도 빌드 검증(CI)이 돌지만 머지 관문은 아니다 — 외부 기여 PR을 받는 그물이다(`AGENTS.md`). 머지 관문은 밀기 전에 마지막 커밋에서 돌리는 넷이다.
+develop으로 가는 PR에도 빌드 검증(CI)이 돌지만 머지 관문은 아니다 — 외부 기여 PR을 받는 그물이다(`AGENTS.md`). 머지 관문은 밀기 전에 마지막 커밋에서 돌리는 다섯이다.
 
 ```sh
 sh tools/gen-skills.sh --check
+sh tools/plugin-copies.sh --check   # plugin/ 의 LICENSE · NOTICE.md 가 루트 원본과 같다(D-123)
 python3 -m unittest discover -s tests/cli
-./gradlew --offline test             # 소스 · 빌드 파일을 안 건드렸으면(문서 · 스킬만) 건너뛴다
+(cd plugin && ./gradlew --offline test)   # 소스 · 빌드 파일을 안 건드렸으면(문서 · 스킬만) 건너뛴다
 sh tools/lint.sh                     # Kotlin · 뷰어 날값 린트(D-70 · D-96) — 판단하지 말고 결과대로 고친다
 ```
 
@@ -153,7 +156,7 @@ Sub-Task가 `없음`이고 인사이트 · 후속 후보 · 실측도 없으면 
 
 ```sh
 gh pr view <N> --json state -q .state     # MERGED 일 때만 아래로
-bin/prevue stop --mine
+plugin/bin/prevue stop --mine
 git push origin --delete <브랜치>
 ```
 
