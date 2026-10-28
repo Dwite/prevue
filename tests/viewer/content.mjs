@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { toBoard } from "./daemon.mjs";
 
 // 크기 전환 동안 틀 안 내용을 프레임마다 잰다. 전용 워크트리로 fixtures/pearl의 AdaptivePreviews.kt를 먼저 연다.
 const viewer = process.argv[2];
@@ -95,6 +96,7 @@ try {
     return { stage: Math.max(...["x", "y", "w", "h"].map(k => Math.abs(a.stage[k] - b.real[k]))), shot: Math.max(...["x", "y", "w", "h"].map(k => Math.abs(top(a)[k] - b.shot[k]))) };
   };
 
+  await toBoard(viewer);
   await send("Page.enable"); await send("Runtime.enable");
   await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await send("Page.addScriptToEvaluateOnNewDocument", { source: `window.__errors=[];addEventListener('error',e=>__errors.push(e.message));addEventListener('unhandledrejection',e=>__errors.push(String(e.reason)));` });
