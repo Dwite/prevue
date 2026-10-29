@@ -33,7 +33,7 @@
 
 ## 브랜치와 워크트리
 
-- **`main`은 배포본, `develop`은 통합 브랜치다.** 둘 다 PR로만 움직인다 — develop은 작업 PR과 로컬 검증(`implement` 5단계), main은 릴리즈 PR과 CI(빌드 검증). 빌드 검증은 develop PR에도 돌지만 그곳의 머지 관문은 로컬 검증이다 — 외부 기여 PR을 받는 그물이다. **직접 푸시하지 않는다** — 브랜치 보호를 걸지 않아 서버가 막아 주지 않는다. main에 미는 순간 배포된다.
+- **`main`은 배포본, `develop`은 통합 브랜치다.** 둘 다 PR로만 움직인다 — develop은 작업 PR과 로컬 검증(`implement` 5단계), main은 릴리즈 PR과 CI(빌드 검증). 빌드 검증은 develop PR에도 돌지만 그곳의 머지 관문은 로컬 검증이다 — 외부 기여 PR을 받는 그물이다. **직접 푸시하지 않는다** — 둘 다 ruleset(PR 필수 · 승인 0개 · 삭제 · 강제 푸시 금지)이 걸려 있지만 저장소 admin은 우회하므로 에이전트의 직접 푸시는 서버가 막아 주지 않는다. main에 미는 순간 배포된다.
 - **작업 하나 = 브랜치 하나 = 워크트리 하나**(브랜치는 `worktree-<작업명>`). Claude Code와 Codex 모두 저장소 루트의 `.worktrees/<작업명>`에 워크트리를 둔다. 베이스 체크아웃은 `develop`에 두고 거기서 코드를 고치지 않는다. 절차(계획 → 워크트리 → 개발 → 리뷰 → PR → 머지 → 볼트 캡처 → 치우기)는 **`implement` 스킬**(`dev-skills-src/implement/SKILL.md`)이 갖는다. 여기는 규칙만 둔다.
 - **클론 직후 한 번 `git remote set-head origin develop`.** 워크트리는 로컬 `origin/HEAD`에서 따는데 GitHub 기본 브랜치는 `main`이라(마켓플레이스가 거기서 읽힌다) 그대로 두면 워크트리가 main에서 시작한다. `git remote set-head -a`를 치면 main으로 돌아간다.
 - **워크트리에서 프리뷰를 볼 때는 그 워크트리를 `(cd plugin && ./gradlew --offline installPrevue)`로 빌드하고 그 `plugin/bin/prevue`를 쓴다.** CLI는 자기 체크아웃이 띄운 데몬만 쓴다(status의 `root`) — 다른 체크아웃의 `plugin/bin/prevue`를 부르면 그 체크아웃의 데몬과 코드로 그린다.
@@ -50,7 +50,7 @@
 - **PR은 `develop` → `main` 하나다.** 버전 커밋(`plugin/VERSION` · `sh tools/sync-version.sh` · `[Unreleased]` 정리)은 PR 없이 develop에 fast-forward로 민다 — 코드가 없어 릴리즈 PR의 "빌드 검증"이 같은 트리를 본다(main · develop 푸시에는 아무것도 돌지 않는다). 여섯 파일(`plugin/VERSION` · 매니페스트 둘 · README 두 벌 · CHANGELOG) 밖이 바뀌면 이 예외가 아니다.
 - **릴리즈 PR은 merge commit으로 머지한다** — squash · rebase면 develop과 main이 갈라진다. 머지가 배포다.
 - **기록** `gh workflow run 릴리즈 --ref main`이 태그와 GitHub Release를 만든다. 그 실행 결과까지 확인하고 완료라고 말한다.
-- **릴리즈의 머지 관문은 CI(빌드 검증)와 PR head의 `스킬 평가` 상태다** — 버전 · 태그 · 동기화는 `/ship`이 버전 커밋 전에 본다 — 릴리즈에서 로컬 검증을 다시 돌지 않는다. 브랜치 보호가 없어 서버가 아니라 `/ship`이 지킨다.
+- **릴리즈의 머지 관문은 CI(빌드 검증)와 PR head의 `스킬 평가` 상태다** — 버전 · 태그 · 동기화는 `/ship`이 버전 커밋 전에 본다 — 릴리즈에서 로컬 검증을 다시 돌지 않는다. main ruleset이 빌드 검증(`build`) 통과와 merge commit만 강제하고, `스킬 평가`는 서버가 아니라 `/ship`이 지킨다.
 - 사람에게 확인받는 곳은 버전 커밋을 밀기 전 한 번이다. 실패하면 되돌리지 않고 멈춰 보고한다 — 고친 뒤 `/ship`이 멈춘 자리부터 이어 간다.
 
 ## 승인이 필요한 것

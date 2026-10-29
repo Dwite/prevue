@@ -2,7 +2,7 @@
   <img src="assets/icon.png" width="40" height="40" alt="" align="absmiddle">&nbsp;Prevue
 </h1>
 
-<p align="center"><b>이제 에이전트도 자기가 만든 화면을 봅니다.</b></p>
+<p align="center"><b>이제 에이전트도 자기가 만든 Compose 화면을 봅니다.</b></p>
 
 <p align="center">저장하고 1초면 브라우저의 Compose Preview가 바뀝니다.<br>Android Studio도 빌드도 필요 없습니다.</p>
 
@@ -11,7 +11,7 @@
 <div align="center">
 
 [![GitHub Actions](https://img.shields.io/badge/GitHub%C2%A0Actions-%EB%B9%8C%EB%93%9C%C2%A0%EA%B2%80%EC%A6%9D-0E1B2A?logo=github&logoColor=white)](https://github.com/kakao/prevue/actions/workflows/build.yml)
-[![version](https://img.shields.io/badge/version-0.19.0-0E1B2A)](CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-0.20.0-0E1B2A)](CHANGELOG.md)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-0E1B2A?logo=claude&logoColor=white)](#시작하기)
 [![Codex](https://img.shields.io/badge/Codex-plugin-0E1B2A?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTIyLjI4MTkgOS44MjExYTUuOTg0NyA1Ljk4NDcgMCAwIDAtLjUxNTctNC45MTA4IDYuMDQ2MiA2LjA0NjIgMCAwIDAtNi41MDk4LTIuOUE2LjA2NTEgNi4wNjUxIDAgMCAwIDQuOTgwNyA0LjE4MThhNS45ODQ3IDUuOTg0NyAwIDAgMC0zLjk5NzcgMi45IDYuMDQ2MiA2LjA0NjIgMCAwIDAgLjc0MjcgNy4wOTY2IDUuOTggNS45OCAwIDAgMCAuNTExIDQuOTEwNyA2LjA1MSA2LjA1MSAwIDAgMCA2LjUxNDYgMi45MDAxQTUuOTg0NyA1Ljk4NDcgMCAwIDAgMTMuMjU5OSAyNGE2LjA1NTcgNi4wNTU3IDAgMCAwIDUuNzcxOC00LjIwNTggNS45ODk0IDUuOTg5NCAwIDAgMCAzLjk5NzctMi45MDAxIDYuMDU1NyA2LjA1NTcgMCAwIDAtLjc0NzUtNy4wNzI5em0tOS4wMjIgMTIuNjA4MWE0LjQ3NTUgNC40NzU1IDAgMCAxLTIuODc2NC0xLjA0MDhsLjE0MTktLjA4MDQgNC43NzgzLTIuNzU4MmEuNzk0OC43OTQ4IDAgMCAwIC4zOTI3LS42ODEzdi02LjczNjlsMi4wMiAxLjE2ODZhLjA3MS4wNzEgMCAwIDEgLjAzOC4wNTJ2NS41ODI2YTQuNTA0IDQuNTA0IDAgMCAxLTQuNDk0NSA0LjQ5NDR6bS05LjY2MDctNC4xMjU0YTQuNDcwOCA0LjQ3MDggMCAwIDEtLjUzNDYtMy4wMTM3bC4xNDIuMDg1MiA0Ljc4MyAyLjc1ODJhLjc3MTIuNzcxMiAwIDAgMCAuNzgwNiAwbDUuODQyOC0zLjM2ODV2Mi4zMzI0YS4wODA0LjA4MDQgMCAwIDEtLjAzMzIuMDYxNUw5Ljc0IDE5Ljk1MDJhNC40OTkyIDQuNDk5MiAwIDAgMS02LjE0MDgtMS42NDY0ek0yLjM0MDggNy44OTU2YTQuNDg1IDQuNDg1IDAgMCAxIDIuMzY1NS0xLjk3MjhWMTEuNmEuNzY2NC43NjY0IDAgMCAwIC4zODc5LjY3NjVsNS44MTQ0IDMuMzU0My0yLjAyMDEgMS4xNjg1YS4wNzU3LjA3NTcgMCAwIDEtLjA3MSAwbC00LjgzMDMtMi43ODY1QTQuNTA0IDQuNTA0IDAgMCAxIDIuMzQwOCA3Ljg3MnptMTYuNTk2MyAzLjg1NThMMTMuMTAzOCA4LjM2NCAxNS4xMTkyIDcuMmEuMDc1Ny4wNzU3IDAgMCAxIC4wNzEgMGw0LjgzMDMgMi43OTEzYTQuNDk0NCA0LjQ5NDQgMCAwIDEtLjY3NjUgOC4xMDQydi01LjY3NzJhLjc5Ljc5IDAgMCAwLS40MDctLjY2N3ptMi4wMTA3LTMuMDIzMWwtLjE0Mi0uMDg1Mi00Ljc3MzUtMi43ODE4YS43NzU5Ljc3NTkgMCAwIDAtLjc4NTQgMEw5LjQwOSA5LjIyOTdWNi44OTc0YS4wNjYyLjA2NjIgMCAwIDEgLjAyODQtLjA2MTVsNC44MzAzLTIuNzg2NmE0LjQ5OTIgNC40OTkyIDAgMCAxIDYuNjgwMiA0LjY2ek04LjMwNjUgMTIuODYzbC0yLjAyLTEuMTYzOGEuMDgwNC4wODA0IDAgMCAxLS4wMzgtLjA1NjdWNi4wNzQyYTQuNDk5MiA0LjQ5OTIgMCAwIDEgNy4zNzU3LTMuNDUzN2wtLjE0Mi4wODA1TDguNzA0IDUuNDU5YS43OTQ4Ljc5NDggMCAwIDAtLjM5MjcuNjgxM3ptMS4wOTc2LTIuMzY1NGwyLjYwMi0xLjQ5OTggMi42MDY5IDEuNDk5OHYyLjk5OTRsLTIuNTk3NCAxLjQ5OTctMi42MDY3LTEuNDk5N1oiLz48L3N2Zz4%3D)](#시작하기)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-headless%20render-4285F4?logo=jetpackcompose&logoColor=white)
@@ -192,7 +192,7 @@ Android Studio의 Interactive Mode처럼 클릭 · 드래그로 모션과 애니
 - **Hot Swap** — 저장한 뒤 25장이 전부 새 그림이 되기까지. 첫 장은 0.9초에 나옵니다
 - **First Preview** — Android Studio는 프로젝트를 열고, Prevue는 데몬을 띄우고 첫 렌더가 끝나기까지
 - **Memory** — Android Studio는 한 시점의 IDE와 Gradle 데몬 합계, Prevue는 저장 10번 뒤 데몬 하나의 메모리 사용량입니다. 모듈을 오가며 오래 써도 1.6GB가 최대였고, 10분 동안 쓰지 않으면 스스로 종료됩니다
-- **Disk** — Android Studio 앱 번들 대 `~/.prevue/toolchain`
+- **Disk** — Android Studio 앱 번들 대 `~/.prevue/toolchain`. JDK 25 이상이면 데몬을 빨리 띄우려고 `~/.prevue/aot`에 200MB 안팎의 클래스 캐시를 더 둡니다
 - **Prevue가 다시 그리는 속도** — 리터럴 · 리소스 값 저장은 컴파일을 건너뜁니다. 모듈 전환과 기기 바꾸기는 새 그림이 나오기까지, 인터랙티브는 피드를 드래그하는 동안 뷰어 스트림의 프레임 수입니다
 
 ## 명령

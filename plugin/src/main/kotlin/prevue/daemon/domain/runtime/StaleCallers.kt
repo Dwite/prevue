@@ -72,6 +72,15 @@ class StaleCallers(
         return if (again.ok) done(ed, rest, seen, again) else Batch(first, seen, c)
     }
 
+    suspend fun compileOpening(ed: WorkspaceEditor, files: List<File>): Batch {
+        val before = literals.read(files)
+        val seen = files.associate { it.canonicalPath to it.lastModified() }
+        val alone = compileAll(files, before)
+        if (alone.ok) return done(ed, files, seen, alone)
+        val asked = files.map { it.canonicalPath }.toSet()
+        return if (ws.now.newFiles.any { it !in asked }) compileWithNew(ed, files, before) else Batch(files, seen, alone)
+    }
+
     suspend fun behindBuild(): List<File> =
         sources.sourceFiles().map { it.canonicalFile }.groupBy { ws.graph.ownerOf(it) }.flatMap { (module, files) ->
             val built = compiler.builtAt(module) ?: return@flatMap emptyList()
