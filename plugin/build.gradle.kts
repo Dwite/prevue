@@ -5,9 +5,18 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
-// 컴파일은 17로 된다. 런타임만 21+가 필요하다 — layoutlib 17.0.x가 Java 21 바이트코드다.
+// 바이트코드는 17로 고정하고 컴파일은 Gradle을 돌리는 JDK(21+)로 한다 — 툴체인을 걸면 JDK 17이 따로 깔려 있어야 해서
+// Android Studio의 JBR만 있는 맥에서 setup이 멈춘다(#22). 런타임만 21+가 필요하다 — layoutlib 17.0.x가 Java 21 바이트코드다.
+// release · jdk-release는 API도 17로 묶는다 — Gradle을 돌린 JDK가 데몬의 JDK보다 새로워도 데몬에 없는 API를 부르지 않는다.
+tasks.withType<JavaCompile>().configureEach {
+    options.release = 17
+}
+
 kotlin {
-    jvmToolchain(17)
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        freeCompilerArgs.add("-Xjdk-release=17")
+    }
 }
 
 /**
