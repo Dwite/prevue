@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import prevue.daemon.adapter.compile.HotCompiler
@@ -16,8 +17,8 @@ import prevue.daemon.adapter.dump.WatchGraph
 import prevue.daemon.adapter.process.ProcessMemory
 import prevue.daemon.adapter.process.Respawn
 import prevue.daemon.adapter.process.Reveal
+import prevue.daemon.adapter.render.BootingEngine
 import prevue.daemon.adapter.render.RenderEngine
-import prevue.daemon.adapter.render.ResourceOverlay
 import prevue.daemon.adapter.source.GitHead
 import prevue.daemon.adapter.source.ProjectFiles
 import prevue.daemon.adapter.source.SourcePreviewRepository
@@ -125,8 +126,7 @@ private fun PrevueDaemon.assemble(boot: Boot) {
     val graph = renderApp?.let { WatchGraph.ofApp(boot.home, it) } ?: WatchGraph.of(boot.home, app ?: boot.home)
     val compiler = own(boot.hotCompiler())
     boot.paths.thumbs.deleteRecursively()
-    val engine = own(RenderEngine(renderSpec, boot.args.layoutlib, boot.paths.out)).apply { preloadNext = boot.args.preload }
-    log("렌더러 준비 ${engine.bootstrapMs}ms" + (engine.negatives?.let { " · APK 음수 치수 ${it.count}개 바로잡음 ${it.ms}ms" } ?: ""))
+    val engine = own(bootEngine(boot, renderSpec))
     val module = moduleInfo(boot, renderSpec, graph, rendersApp = renderApp != null)
     val files = ProjectFiles(boot.spec.repoRoot, graph.roots).apply { buildInBackground(scope) }
     val watches = Watches.of(boot.args, graph, boot.spec)
@@ -135,15 +135,28 @@ private fun PrevueDaemon.assemble(boot: Boot) {
     log("values XML ${uc.rememberValues()}개")
     indexPreviewFiles(uc)
     val ui = entryPoints(uc, boot)
-    scope.launch(CoroutineName("prevue-lost")) {
-        val lost = engine.lost.filterNotNull().first()
-        respawnLater(boot.argv, uc, ui, lost.reason.text, lost.preview.file)
-    }
+    watchRenderer(engine, boot, uc, ui)
     serve(ui) { uc.readStatus().lastRenderMs }
     log("http://127.0.0.1:${boot.args.port}/  (${(System.nanoTime() - boot.startedNs) / 1_000_000}ms)")
     if (watches.watching) watches.report(graph)
-    warmUp(boot, compiler, graph)
-    boot.args.show?.let { showInitial(it, uc) }
+    val initial = boot.args.show?.let { showInitial(it, uc) }
+    warmUp(boot, compiler, graph, after = initial)
+}
+
+private fun PrevueDaemon.bootEngine(boot: Boot, renderSpec: ClasspathSpec) = BootingEngine(scope, boot.paths.out) {
+    RenderEngine(renderSpec, boot.args.layoutlib, boot.paths.out).apply { preloadNext = boot.args.preload }.also { e ->
+        log("렌더러 준비 ${e.bootstrapMs}ms" + (e.negatives?.let { " · APK 음수 치수 ${it.count}개 바로잡음 ${it.ms}ms" } ?: ""))
+    }
+}
+
+private fun PrevueDaemon.watchRenderer(engine: BootingEngine, boot: Boot, uc: UseCases, ui: EntryPoints) {
+    scope.launch(CoroutineName("prevue-lost")) {
+        val booted = try { engine.await() }
+            catch (e: CancellationException) { throw e }
+            catch (e: Throwable) { requestFailure("렌더러를 띄우지 못했다", e); return@launch }
+        val lost = booted.lost.filterNotNull().first()
+        respawnLater(boot.argv, uc, ui, lost.reason.text, lost.preview.file)
+    }
 }
 
 private fun moduleInfo(boot: Boot, renderSpec: ClasspathSpec, graph: ModuleGraph, rendersApp: Boolean): ModuleInfo {
@@ -192,13 +205,13 @@ private class Watches(
 
 private fun PrevueDaemon.useCases(
     ws: Workspace,
-    engine: RenderEngine,
+    engine: BootingEngine,
     compiler: HotCompiler,
     previews: SourcePreviewRepository,
     files: ProjectFiles,
     w: Watches,
 ): UseCases = UseCases(ws,
-    Ports(engine, engine, compiler, previews, files, memory = ProcessMemory, resources = ResourceOverlay.install(engine.renderer)), scope,
+    Ports(engine, engine, compiler, previews, files, memory = ProcessMemory, resources = engine.resources), scope,
     Watchers(
         sources = if (w.watching) PollingSourceWatcher(w.roots) else null,
         builds = if (w.watching) PollingBuildWatcher(w.buildGroups()) else null,
@@ -245,8 +258,9 @@ private fun PrevueDaemon.respawnLater(
     }
 }
 
-private fun PrevueDaemon.warmUp(boot: Boot, compiler: HotCompiler, graph: ModuleGraph) {
+private fun PrevueDaemon.warmUp(boot: Boot, compiler: HotCompiler, graph: ModuleGraph, after: Job?) {
     scope.launch(CoroutineName("prevue-warmup")) {
+        after?.join()
         val warmFile = boot.args.show?.substringBefore('#')?.let { File(it) }?.takeIf { it.isFile }
             ?: boot.spec.sourceRoots.asSequence().flatMap { it.walkTopDown() }.takeWhile { isActive }.firstOrNull {
                 it.extension == "kt" && it.readText().contains("@Preview")
@@ -259,7 +273,7 @@ private fun PrevueDaemon.warmUp(boot: Boot, compiler: HotCompiler, graph: Module
     }
 }
 
-private fun PrevueDaemon.showInitial(target: String, uc: UseCases) {
+private fun PrevueDaemon.showInitial(target: String, uc: UseCases): Job =
     scope.launch(CoroutineName("prevue-initial-preview")) {
         val (t, idx) = target.substringBefore('#') to target.substringAfter('#', "").toIntOrNull()
         try {
@@ -270,6 +284,5 @@ private fun PrevueDaemon.showInitial(target: String, uc: UseCases) {
         } catch (e: CancellationException) { throw e }
         catch (e: Exception) { log("show 실패: $e"); e.printStackTrace() }
     }
-}
 
 private fun log(s: String) = println("[prevue ${java.time.LocalTime.now().withNano(0)}] $s")

@@ -36,6 +36,7 @@ class EngineActor(
     init {
         scope.launch(context + CoroutineName("prevue-engine")) {
             try {
+                renderer.ready()
                 while (isActive) {
                     val c = next() ?: continue
                     if (!isActive) { c.reply.cancel(); break }
@@ -101,15 +102,19 @@ class EngineActor(
     val frames: StateFlow<LiveLoop.Report> get() = loop.report
     fun isLatest(shot: SettledShot): Boolean = loop.isLatest(shot)
 
+    private var drewOnce = false
+
     suspend fun show(p: PreviewSpec, interactive: Boolean = false, ownLoader: Boolean = false): RenderOutput = call {
+        drewOnce = true
         loop.close()
         if (interactive) loop.open(p, interactive = true) else renderer.show(p, ownLoader)
     }
-    suspend fun showAside(p: PreviewSpec): RenderOutput = call { renderer.showAside(p) }
+    suspend fun showAside(p: PreviewSpec): RenderOutput = call { drewOnce = true; renderer.showAside(p) }
+    suspend fun warmIfCold(p: PreviewSpec): RenderOutput? = call { if (drewOnce) null else { drewOnce = true; renderer.showAside(p) } }
     fun keepImage(out: RenderOutput, previewId: String): RenderOutput = renderer.copyImage(out, previewId)
     fun msSinceInput(): Long = loop.lastInputAt.value?.let { now() - it } ?: Long.MAX_VALUE
-    suspend fun rerender(p: PreviewSpec): RenderOutput = call { if (loop.preview != null) loop.look(false).out else renderer.show(p) }
-    suspend fun renderAt(p: PreviewSpec, ms: Long): RenderOutput = call { loop.renderAt(p, ms) }
+    suspend fun rerender(p: PreviewSpec): RenderOutput = call { drewOnce = true; if (loop.preview != null) loop.look(false).out else renderer.show(p) }
+    suspend fun renderAt(p: PreviewSpec, ms: Long): RenderOutput = call { drewOnce = true; loop.renderAt(p, ms) }
     suspend fun codeChanged() = call { loop.close(); renderer.codeChanged() }
     suspend fun patchLiterals(owner: String, values: Map<String, Any>): Boolean = call { renderer.patchLiterals(owner, values) }
     suspend fun dropLiterals(owners: Collection<String>) = call { renderer.dropLiterals(owners) }
@@ -118,7 +123,7 @@ class EngineActor(
     suspend fun instanceCounts(found: List<PreviewSpec>): Map<PreviewSpec, Int> =
         if (found.none { it.methodParams.isNotEmpty() }) found.associateWith { 1 } else call { found.associateWith(renderer::instanceCount) }
 
-    suspend fun ensure(p: PreviewSpec, interactive: Boolean): RenderOutput? = call { loop.ensure(p, interactive) }
+    suspend fun ensure(p: PreviewSpec, interactive: Boolean): RenderOutput? = call { drewOnce = true; loop.ensure(p, interactive) }
     suspend fun changed(): Boolean = call { loop.changed }
     suspend fun look(semantics: Boolean = false): LiveSession.Look = call { loop.look(semantics) }
     suspend fun touch(type: String, x: Int, y: Int): Long = call { loop.touch(type, x, y) }
