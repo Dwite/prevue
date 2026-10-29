@@ -5,10 +5,12 @@ import java.io.File
 import prevue.daemon.entity.PreviewSpec
 import prevue.daemon.domain.port.CompileResult
 import prevue.daemon.domain.model.CardResult
+import prevue.daemon.domain.model.StaleReason
 import prevue.daemon.domain.model.ReloadResult
 import prevue.daemon.domain.model.SaveTiming
 import prevue.daemon.domain.model.VacantTab
 import prevue.daemon.domain.port.SourceChange
+import prevue.daemon.domain.policy.ExpectActual
 import prevue.daemon.domain.policy.StaleReasons
 import prevue.daemon.domain.runtime.EngineActor
 import prevue.daemon.domain.runtime.Lines
@@ -55,7 +57,31 @@ class ApplySaveUseCase(
         val texts = literals.read(files)
         val coded = save.copy(texts = texts)
         val patched = if (change == null) null else applyLiterals(p, files, texts, seenNow, r?.compile != null, coded)
-        patched ?: compileAndRender(p, files, texts, coded)
+        patched ?: compileOrHold(p, files, r?.compile, coded)
+    }
+
+    private suspend fun compileOrHold(p: PreviewSpec, files: List<File>, values: CompileResult?, save: Save): ReloadResult {
+        val (held, code) = files.partition { ExpectActual.declares(it, save.texts[it.absolutePath]) }
+        if (held.isEmpty()) return compileAndRender(p, files, save.texts, save)
+        val why = holdForGradle(save.ed, held)
+        if (code.isNotEmpty()) return compileAndRender(p, code, save.texts, save)
+        if (values != null) return render(p, values, emptyList(), save.valuesSeen, save, repair = false)
+        save.ed.markCompiled(save.valuesSeen)
+        return ReloadResult.NeedsGradleBuild(held, why.what, ws.now.stale)
+    }
+
+    private fun holdForGradle(ed: WorkspaceEditor, files: List<File>): StaleReason {
+        val next = StaleReasons.expectActual(files)
+        val why = ws.now.stale[StaleReasons.EXPECT_ACTUAL]?.let { next.copy(files = (it.files + next.files).distinct(), since = it.since) } ?: next
+        ed.markStale(StaleReasons.EXPECT_ACTUAL, why)
+        ed.markCompiled(files.associate { it.canonicalPath to it.lastModified() })
+        return why
+    }
+
+    private fun releaseHeld(ed: WorkspaceEditor, compiled: List<File>) {
+        val held = ws.now.stale[StaleReasons.EXPECT_ACTUAL] ?: return
+        val left = held.files - compiled.map { it.absolutePath }.toSet()
+        ed.markStale(StaleReasons.EXPECT_ACTUAL, if (left.isEmpty()) null else held.copy(files = left))
     }
 
     private fun nothingShown(ed: WorkspaceEditor, valuesSeen: Map<String, Long>): ReloadResult {
@@ -98,6 +124,7 @@ class ApplySaveUseCase(
         val seen = batch.seen + save.valuesSeen
         if (!batch.result.ok) return compileFailed(p, batch, seen, save)
         ed.update { it.copy(stale = it.stale - StaleReasons.COMPILE, lastCompileFailure = null) }
+        releaseHeld(ed, batch.files)
         engine.codeChanged()
         if (vacateIfPreviewLost(ed, files, seen)) return ReloadResult.NothingShown
         val reread = tabs.reread(ed, p)
