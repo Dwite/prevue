@@ -4,7 +4,7 @@
 
 <p align="center"><b>Your agent finally sees the Compose UI it builds.</b></p>
 
-<p align="center">Jetpack Compose Previews for Android, in your browser, redrawn a second after every save.<br>No Android Studio, no build.</p>
+<p align="center">Compose Previews in your browser, redrawn a second after every save.<br>No Android Studio, no build.</p>
 
 <p align="center"><b>English</b> | <a href="README.ko.md">한국어</a></p>
 

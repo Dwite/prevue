@@ -4,7 +4,7 @@
 
 <p align="center"><b>이제 에이전트도 자기가 만든 Compose 화면을 봅니다.</b></p>
 
-<p align="center">저장하고 1초면 브라우저의 Android Jetpack Compose Preview가 바뀝니다.<br>Android Studio도 빌드도 필요 없습니다.</p>
+<p align="center">저장하고 1초면 브라우저의 Compose Preview가 바뀝니다.<br>Android Studio도 빌드도 필요 없습니다.</p>
 
 <p align="center"><a href="README.md">English</a> | <b>한국어</b></p>
 
