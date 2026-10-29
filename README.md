@@ -2,7 +2,7 @@
   <img src="assets/icon.png" width="40" height="40" alt="" align="absmiddle">&nbsp;Prevue
 </h1>
 
-<p align="center"><b>Your agent finally sees the UI it builds.</b></p>
+<p align="center"><b>Your agent finally sees the Compose UI it builds.</b></p>
 
 <p align="center">Jetpack Compose Previews for Android, in your browser, redrawn a second after every save.<br>No Android Studio, no build.</p>
 

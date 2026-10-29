@@ -2,7 +2,7 @@
   <img src="assets/icon.png" width="40" height="40" alt="" align="absmiddle">&nbsp;Prevue
 </h1>
 
-<p align="center"><b>이제 에이전트도 자기가 만든 화면을 봅니다.</b></p>
+<p align="center"><b>이제 에이전트도 자기가 만든 Compose 화면을 봅니다.</b></p>
 
 <p align="center">저장하고 1초면 브라우저의 Android Jetpack Compose Preview가 바뀝니다.<br>Android Studio도 빌드도 필요 없습니다.</p>
 
