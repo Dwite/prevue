@@ -101,7 +101,7 @@ Preview에서 아무 곳이나 클릭하고 에이전트에게 말하면 됩니�
 
 설치는 명령 두 줄이면 됩니다.
 
-JDK 21 이상과 macOS Command Line Tools(`python3`)가 필요합니다. Android Studio가 설치되어 있으면 함께 들어 있는 JBR을 씁니다. Command Line Tools가 없으면 에이전트가 설치 창을 열어 줍니다.
+Android Studio가 설치되어 있으면 따로 준비할 Java가 없습니다. 프로젝트가 JDK 17이어도 괜찮습니다. Android Studio가 없으면 JDK 21 이상을 설치하고 `PREVUE_JDK`에 그 경로를 넣어 주세요. macOS Command Line Tools(`python3`)도 필요한데, 없으면 에이전트가 설치 창을 열어 줍니다.
 
 ```sh
 # Claude Code

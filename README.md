@@ -103,7 +103,7 @@ Even when two agents save at the same time, each window redraws on its own, and 
 
 Installing takes two commands.
 
-You need JDK 21 or later and the macOS Command Line Tools (`python3`). If Android Studio is installed, Prevue uses the JBR bundled with it. If the Command Line Tools are missing, the agent opens the installer for you.
+If Android Studio is installed, there's no Java to set up, even if your project uses JDK 17. Without Android Studio, install JDK 21 or later and set `PREVUE_JDK` to its path. You also need the macOS Command Line Tools (`python3`); if they're missing, the agent opens the installer for you.
 
 ```sh
 # Claude Code
