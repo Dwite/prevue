@@ -8,6 +8,8 @@ Only changes users can see go here.
 
 ## [Unreleased]
 
+## [0.20.1] — 2026-10-29
+
 - **Reporting a problem has a form now.** New issues offer a "Not working" form that asks where Prevue stopped, your environment, and the size of your project, and the README links to it. To tell us about a screen you can't see in a Preview, use the pinned discussion instead.
 
 ## [0.20.0] — 2026-10-29
